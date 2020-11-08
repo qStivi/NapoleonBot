@@ -13,15 +13,15 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simpley
-    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.28'
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
 
     // https://github.com/DV8FromTheWorld/JDA
-    compile group: 'net.dv8tion', name: 'JDA', version: '4.2.0_199'
+    compile group: 'net.dv8tion', name: 'JDA', version: '4.2.0_214'
 
     // https://github.com/sedmelluq/LavaPlayer#lavaplayer---audio-player-library-for-discord
-    implementation 'com.sedmelluq:lavaplayer:1.3.50'
+    implementation 'com.sedmelluq:lavaplayer:1.3.59'
 
     // https://github.com/cdimascio/java-dotenv
-    compile 'io.github.cdimascio:java-dotenv:5.2.1'
+    compile 'io.github.cdimascio:java-dotenv:5.2.2'
 }

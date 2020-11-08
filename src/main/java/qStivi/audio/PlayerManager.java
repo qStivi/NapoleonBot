@@ -7,9 +7,14 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +59,27 @@ public class PlayerManager {
             @Override
             public void trackLoaded(AudioTrack track) {
                 musicManager.trackScheduler.queue(track);
+
+                AudioTrack playingTrack = musicManager.audioPlayer.getPlayingTrack();
+
+                MessageEmbed msg = new EmbedBuilder()
+                        .setColor(Color.red)
+                        .setAuthor(playingTrack.getInfo().author)
+                        .setTitle(playingTrack.getInfo().title)
+                        .setDescription(playingTrack.getPosition() + " | " + "o---------------------------" + " | " + playingTrack.getDuration())
+                        .addField("1", "o-------------------------------", false)
+                        .addField("2", "o-----------------------------------", false)
+                        .addField("3", "o---------------------------------------", false)
+                        .addField("4", "o-------------------------------------------", false)
+                        .addField("5", "o-----------------------------------------------", false)
+                        .addField("6", "o---------------------------------------------------", false)
+                        .addField("7", "o-------------------------------------------------------", false)
+                        .addField("8", "o-----------------------------------------------------------", false)
+                        .addField("9", "o---------------------------------------------------------------", false)
+                        .addField("10", "o-------------------------------------------------------------------", false)
+                        .build();
+
+                channel.sendMessage(msg).queue();
             }
 
             @Override

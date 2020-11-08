@@ -25,6 +25,7 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         LOGGER.info("Ready!");
+        event.getJDA().getTextChannelById(channelId).sendMessage("Ready!").queue();
     }
 
     @Override
@@ -68,6 +69,5 @@ public class Listener extends ListenerAdapter {
         if (messageRaw.toLowerCase().startsWith("hmm")) {
             event.getMessage().addReaction("U+1F914").queue();
         }
-
     }
 }

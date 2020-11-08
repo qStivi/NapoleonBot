@@ -28,6 +28,7 @@ public class CommandManager {
         addCommand(new SkipCommand());
         addCommand(new PauseCommand());
         addCommand(new ContinueCommand());
+        addCommand(new RollCommand());
     }
 
     private void addCommand(ICommand command) {
