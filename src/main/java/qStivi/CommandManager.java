@@ -4,10 +4,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 import qStivi.command.commands.*;
-import qStivi.command.commands.audio.ContinueCommand;
-import qStivi.command.commands.audio.PauseCommand;
-import qStivi.command.commands.audio.PlayCommand;
-import qStivi.command.commands.audio.SkipCommand;
+import qStivi.command.commands.audio.*;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -29,6 +26,7 @@ public class CommandManager {
         addCommand(new PauseCommand());
         addCommand(new ContinueCommand());
         addCommand(new RollCommand());
+        addCommand(new RepeatCommand());
     }
 
     private void addCommand(ICommand command) {

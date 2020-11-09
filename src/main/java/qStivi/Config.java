@@ -18,7 +18,7 @@ public class Config {
             DOTENV = Dotenv.load();
             return DOTENV.get(key);
         } else {
-            boolean fileCreated = false;
+            boolean fileCreated;
             try {
                 fileCreated = f.createNewFile();
                 if (fileCreated) {

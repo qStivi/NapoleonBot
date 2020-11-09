@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -96,6 +97,8 @@ public class PlayerManager {
             public void loadFailed(FriendlyException exception) {
 
             }
+
+
         });
     }
 
@@ -115,5 +118,17 @@ public class PlayerManager {
         final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         musicManager.trackScheduler.continueTrack();
+    }
+
+    public void setRepeat(TextChannel channel, boolean repeat) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+
+        musicManager.trackScheduler.setRepeat(repeat);
+    }
+
+    public boolean isRepeating(TextChannel channel) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+
+        return musicManager.trackScheduler.isRepeating();
     }
 }
