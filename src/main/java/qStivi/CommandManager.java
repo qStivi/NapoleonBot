@@ -19,7 +19,6 @@ public class CommandManager {
         addCommand(new PingCommand());
         addCommand(new GoogleCommand());
         addCommand(new HelpCommand(this));
-        addCommand(new PlayCommand());
         addCommand(new LeaveCommand());
         addCommand(new JoinCommand());
         addCommand(new SkipCommand());
@@ -27,6 +26,11 @@ public class CommandManager {
         addCommand(new ContinueCommand());
         addCommand(new RollCommand());
         addCommand(new RepeatCommand());
+        addCommand(new ControlsCommand());
+        addCommand(new CleanCommand());
+        addCommand(new DndCommand());
+        addCommand(new ClearCommand());
+        addCommand(new PlayCommand());
     }
 
     private void addCommand(ICommand command) {

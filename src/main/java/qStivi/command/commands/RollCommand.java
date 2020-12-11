@@ -88,7 +88,7 @@ public class RollCommand implements ICommand {
 
     @Override
     public String getHelp() {
-        return "Rolls dice für you. `/r 6d4` `/r stats`";
+        return "Rolls dice for you. `/r 6d4` `/r stats`";
     }
 
     @Override

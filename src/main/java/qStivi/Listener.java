@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
+import qStivi.command.commands.audio.ControlsManager;
 
 import java.util.Objects;
 
@@ -35,11 +36,12 @@ public class Listener extends ListenerAdapter {
 
             LOGGER.info("Shutting down...");
 
-            JDA jda = event.getJDA();
-            OkHttpClient httpClient = jda.getHttpClient();
-            httpClient.connectionPool().evictAll();
-            httpClient.dispatcher().executorService().shutdownNow();
-            jda.shutdown();
+            ControlsManager.getINSTANCE().deleteMessage();
+
+            event.getJDA().shutdownNow();
+
+            System.exit(0);
+
 
             return;
         }
@@ -58,11 +60,11 @@ public class Listener extends ListenerAdapter {
         if (messageRaw.toLowerCase().startsWith("ree") && event.getChannel().getId().equals(channelId)) {
             String[] words = messageRaw.split("\\s+");
             String ree = words[0];
-            String[] ees = ree.split("[rR]");
+            String ees = ree.substring(1);
             try {
-                channel.sendMessage(ree + ees[1] + ees[1]).queue();
+                channel.sendMessage(ree + ees + ees).queue();
             } catch (IllegalArgumentException ex) {
-                channel.sendMessage("r" + ees[1]).queue();
+                channel.sendMessage("r" + ees).queue();
             }
         }
 

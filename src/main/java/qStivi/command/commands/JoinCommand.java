@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.entities.User;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 
+import java.util.List;
+
 import static qStivi.Bot.audioManager;
 
 public class JoinCommand implements ICommand {
@@ -40,5 +42,10 @@ public class JoinCommand implements ICommand {
     @Override
     public String getHelp() {
         return "Lets the Bot join your voice channel.";
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("summon");
     }
 }

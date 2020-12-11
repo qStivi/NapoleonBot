@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
+import qStivi.command.commands.audio.ControlsManager;
 
 import javax.security.auth.login.LoginException;
 
@@ -22,6 +23,7 @@ public class Bot {
                     .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .addEventListeners(new Listener())
+                    .addEventListeners(new ControlsManager())
                     .setActivity(Activity.listening("/help for more info..."))
                     .build();
         } catch (LoginException e) {

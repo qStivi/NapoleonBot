@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PlayerManager {
@@ -60,32 +61,13 @@ public class PlayerManager {
             @Override
             public void trackLoaded(AudioTrack track) {
                 musicManager.trackScheduler.queue(track);
-
-                AudioTrack playingTrack = musicManager.audioPlayer.getPlayingTrack();
-
-                MessageEmbed msg = new EmbedBuilder()
-                        .setColor(Color.red)
-                        .setAuthor(playingTrack.getInfo().author)
-                        .setTitle(playingTrack.getInfo().title)
-                        .setDescription(playingTrack.getPosition() + " | " + "o---------------------------" + " | " + playingTrack.getDuration())
-                        .addField("1", "o-------------------------------", false)
-                        .addField("2", "o-----------------------------------", false)
-                        .addField("3", "o---------------------------------------", false)
-                        .addField("4", "o-------------------------------------------", false)
-                        .addField("5", "o-----------------------------------------------", false)
-                        .addField("6", "o---------------------------------------------------", false)
-                        .addField("7", "o-------------------------------------------------------", false)
-                        .addField("8", "o-----------------------------------------------------------", false)
-                        .addField("9", "o---------------------------------------------------------------", false)
-                        .addField("10", "o-------------------------------------------------------------------", false)
-                        .build();
-
-                channel.sendMessage(msg).queue();
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
+                final List<AudioTrack> tracks = playlist.getTracks();
 
+                musicManager.trackScheduler.queue(tracks.get(0));
             }
 
             @Override
@@ -130,5 +112,11 @@ public class PlayerManager {
         final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         return musicManager.trackScheduler.isRepeating();
+    }
+
+    public void clearQueue(TextChannel channel) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+
+        musicManager.trackScheduler.clearQueue();
     }
 }
