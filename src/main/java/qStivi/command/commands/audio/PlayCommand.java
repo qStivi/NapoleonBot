@@ -1,10 +1,9 @@
 package qStivi.command.commands.audio;
 
-import jdk.jshell.spi.ExecutionControl;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.json.JSONObject;
 import qStivi.Spotify;
-import qStivi.audio.PlayerManager;
+import qStivi.audioManagers.PlayerManager;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 

@@ -2,7 +2,7 @@ package qStivi.command.commands.audio;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
-import qStivi.audio.PlayerManager;
+import qStivi.audioManagers.PlayerManager;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 

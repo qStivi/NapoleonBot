@@ -1,6 +1,6 @@
 package qStivi.command.commands.audio;
 
-import qStivi.audio.PlayerManager;
+import qStivi.audioManagers.PlayerManager;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 

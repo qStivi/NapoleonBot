@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.json.JSONException;
 import org.json.JSONObject;
 import qStivi.Spotify;
-import qStivi.audio.PlayerManager;
+import qStivi.audioManagers.PlayerManager;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 

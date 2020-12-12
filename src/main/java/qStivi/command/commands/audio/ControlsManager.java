@@ -2,12 +2,11 @@ package qStivi.command.commands.audio;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import qStivi.audio.PlayerManager;
+import qStivi.audioManagers.PlayerManager;
 import qStivi.command.CommandContext;
 
 import java.awt.*;

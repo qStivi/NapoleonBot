@@ -1,4 +1,4 @@
-package qStivi.audio;
+package qStivi.audioManagers;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;

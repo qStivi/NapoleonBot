@@ -1,4 +1,4 @@
-package qStivi.audio;
+package qStivi.audioManagers;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -7,15 +7,9 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,39 +78,44 @@ public class PlayerManager {
         });
     }
 
+
+    /**
+     * Starts playing the next track in the queue.<br><br>
+     * If the queue is empty the playback is going to be stopped.
+     */
     public void skip(TextChannel channel) {
         final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
-        musicManager.trackScheduler.playNextTrack();
+        musicManager.audioPlayer.startTrack(musicManager.trackScheduler.queue.poll(), false);
     }
 
     public void pause(TextChannel channel) {
         final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
-        musicManager.trackScheduler.pauseTrack();
+        musicManager.audioPlayer.setPaused(true);
     }
 
     public void continueTrack(TextChannel channel) {
         final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
-        musicManager.trackScheduler.continueTrack();
+        musicManager.audioPlayer.setPaused(false);
     }
 
     public void setRepeat(TextChannel channel, boolean repeat) {
         final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
-        musicManager.trackScheduler.setRepeat(repeat);
+        musicManager.trackScheduler.isRepeating = repeat;
     }
 
     public boolean isRepeating(TextChannel channel) {
         final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
-        return musicManager.trackScheduler.isRepeating();
+        return musicManager.trackScheduler.isRepeating;
     }
 
     public void clearQueue(TextChannel channel) {
         final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
-        musicManager.trackScheduler.clearQueue();
+        musicManager.trackScheduler.queue.clear();
     }
 }
