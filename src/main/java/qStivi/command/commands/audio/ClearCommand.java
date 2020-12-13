@@ -7,8 +7,9 @@ import qStivi.command.ICommand;
 public class ClearCommand implements ICommand {
     @Override
     public void handle(CommandContext context) {
-        PlayerManager.getINSTANCE().clearQueue(context.getChannel());
-        PlayerManager.getINSTANCE().skip(context.getChannel());
+        PlayerManager pm = PlayerManager.getINSTANCE(context.getGuild());
+        pm.clearQueue();
+        pm.skip();
     }
 
     @Override
