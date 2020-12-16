@@ -16,37 +16,40 @@ import java.util.Map;
 
 public class PlayerManager {
 
-    /**
-     * This variable exists so we can use the same instance in the whole program. This is important because we always want to use the same queue for example.
-     */
     private static PlayerManager INSTANCE;
 
-    public GuildMusicManager gm;
-
-
+    private final Map<Long, GuildMusicManager> musicManagers;
     private final AudioPlayerManager audioPlayerManager;
 
-    public PlayerManager(Guild guild) {
+    public PlayerManager() {
+        this.musicManagers = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
-        this.gm = new GuildMusicManager(this.audioPlayerManager);
 
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
         AudioSourceManagers.registerLocalSource(this.audioPlayerManager);
-
-        guild.getAudioManager().setSendingHandler(gm.getAudioSendHandler());
     }
 
-    public static PlayerManager getINSTANCE(Guild guild) {
+    public static PlayerManager getINSTANCE() {
 
         if (INSTANCE == null) {
-            INSTANCE = new PlayerManager(guild);
+            INSTANCE = new PlayerManager();
         }
 
         return INSTANCE;
     }
 
+    public GuildMusicManager getMusicManager(Guild guild) {
+        return this.musicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
+            final GuildMusicManager guildMusicManager = new GuildMusicManager(this.audioPlayerManager);
+
+            guild.getAudioManager().setSendingHandler(guildMusicManager.getAudioSendHandler());
+
+            return guildMusicManager;
+        });
+    }
+
     public void loadAndPlay(TextChannel channel, String trackURL) {
-        final GuildMusicManager musicManager = this.gm;
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         this.audioPlayerManager.loadItemOrdered(musicManager, trackURL, new AudioLoadResultHandler() {
             @Override
@@ -70,6 +73,8 @@ public class PlayerManager {
             public void loadFailed(FriendlyException exception) {
 
             }
+
+
         });
     }
 
@@ -78,38 +83,38 @@ public class PlayerManager {
      * Starts playing the next track in the queue.<br><br>
      * If the queue is empty the playback is going to be stopped.
      */
-    public void skip() {
-        final GuildMusicManager musicManager = this.gm;
+    public void skip(TextChannel channel) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         musicManager.audioPlayer.startTrack(musicManager.trackScheduler.queue.poll(), false);
     }
 
-    public void pause() {
-        final GuildMusicManager musicManager = this.gm;
+    public void pause(TextChannel channel) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         musicManager.audioPlayer.setPaused(true);
     }
 
-    public void continueTrack() {
-        final GuildMusicManager musicManager = this.gm;
+    public void continueTrack(TextChannel channel) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         musicManager.audioPlayer.setPaused(false);
     }
 
-    public void setRepeat(boolean repeat) {
-        final GuildMusicManager musicManager = this.gm;
+    public void setRepeat(TextChannel channel, boolean repeat) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         musicManager.trackScheduler.isRepeating = repeat;
     }
 
-    public boolean isRepeating() {
-        final GuildMusicManager musicManager = this.gm;
+    public boolean isRepeating(TextChannel channel) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         return musicManager.trackScheduler.isRepeating;
     }
 
-    public void clearQueue() {
-        final GuildMusicManager musicManager = this.gm;
+    public void clearQueue(TextChannel channel) {
+        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
 
         musicManager.trackScheduler.queue.clear();
     }

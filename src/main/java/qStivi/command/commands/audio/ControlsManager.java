@@ -39,7 +39,7 @@ public class ControlsManager extends ListenerAdapter {
     public void sendMessage(CommandContext context) {
         if (this.messageId == null) {
             this.context = context;
-            this.id = PlayerManager.getINSTANCE(context.getGuild()).gm.audioPlayer.getPlayingTrack().getIdentifier();
+            this.id = PlayerManager.getINSTANCE().getMusicManager(context.getGuild()).audioPlayer.getPlayingTrack().getIdentifier();
             context.getChannel().sendMessage("Loading...").queue(message -> this.messageId = message.getId());
             while (this.messageId == null) {
                 Thread.onSpinWait();
@@ -110,7 +110,7 @@ public class ControlsManager extends ListenerAdapter {
     }
 
     private void Update() {
-        AudioTrack track = PlayerManager.getINSTANCE(context.getGuild()).gm.audioPlayer.getPlayingTrack();
+        AudioTrack track = PlayerManager.getINSTANCE().getMusicManager(this.context.getGuild()).audioPlayer.getPlayingTrack();
         if (track != null) {
             this.totalTime = track.getDuration();
             this.timeRemaining = track.getPosition();
@@ -126,23 +126,23 @@ public class ControlsManager extends ListenerAdapter {
         if (!Objects.requireNonNull(event.getUser()).isBot()) {
 
             if (event.getReactionEmote().getEmoji().equals("⏸")) {
-                PlayerManager.getINSTANCE(context.getGuild()).pause();
+                PlayerManager.getINSTANCE().pause(event.getTextChannel());
             }
 
             if (event.getReactionEmote().getEmoji().equals("▶")) {
-                PlayerManager.getINSTANCE(context.getGuild()).continueTrack();
+                PlayerManager.getINSTANCE().continueTrack(event.getTextChannel());
             }
 
             if (event.getReactionEmote().getEmoji().equals("⏹")) {
-                PlayerManager.getINSTANCE(context.getGuild()).clearQueue();
+                PlayerManager.getINSTANCE().clearQueue(event.getTextChannel());
             }
 
             if (event.getReactionEmote().getEmoji().equals("\uD83D\uDD02")) {
-                PlayerManager.getINSTANCE(context.getGuild()).setRepeat(!PlayerManager.getINSTANCE(context.getGuild()).isRepeating());
+                PlayerManager.getINSTANCE().setRepeat(event.getTextChannel(), !PlayerManager.getINSTANCE().isRepeating(event.getTextChannel()));
             }
 
             if (event.getReactionEmote().getEmoji().equals("⏭")) {
-                PlayerManager.getINSTANCE(context.getGuild()).skip();
+                PlayerManager.getINSTANCE().skip(event.getTextChannel());
             }
         }
 
