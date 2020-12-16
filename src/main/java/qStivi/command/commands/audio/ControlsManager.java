@@ -3,7 +3,6 @@ package qStivi.command.commands.audio;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import qStivi.audioManagers.PlayerManager;
@@ -64,10 +63,14 @@ public class ControlsManager extends ListenerAdapter {
         this.timer.cancel();
         try {
             this.context.getChannel().unpinMessageById(this.messageId).queue();
-        } catch (ErrorResponseException ignored){}
+        } catch (Exception ignored) {
+        }
         this.timer = new Timer();
         this.task = task();
-        this.context.getChannel().deleteMessageById(this.messageId).queue();
+        try {
+            this.context.getChannel().deleteMessageById(this.messageId).queue();
+        } catch (Exception ignored) {
+        }
         this.messageId = null;
     }
 
@@ -126,23 +129,23 @@ public class ControlsManager extends ListenerAdapter {
         if (!Objects.requireNonNull(event.getUser()).isBot()) {
 
             if (event.getReactionEmote().getEmoji().equals("⏸")) {
-                PlayerManager.getINSTANCE().pause(event.getTextChannel());
+                PlayerManager.getINSTANCE().pause(event.getGuild());
             }
 
             if (event.getReactionEmote().getEmoji().equals("▶")) {
-                PlayerManager.getINSTANCE().continueTrack(event.getTextChannel());
+                PlayerManager.getINSTANCE().continueTrack(event.getGuild());
             }
 
             if (event.getReactionEmote().getEmoji().equals("⏹")) {
-                PlayerManager.getINSTANCE().clearQueue(event.getTextChannel());
+                PlayerManager.getINSTANCE().clearQueue(event.getGuild());
             }
 
             if (event.getReactionEmote().getEmoji().equals("\uD83D\uDD02")) {
-                PlayerManager.getINSTANCE().setRepeat(event.getTextChannel(), !PlayerManager.getINSTANCE().isRepeating(event.getTextChannel()));
+                PlayerManager.getINSTANCE().setRepeat(event.getGuild(), !PlayerManager.getINSTANCE().isRepeating(event.getGuild()));
             }
 
             if (event.getReactionEmote().getEmoji().equals("⏭")) {
-                PlayerManager.getINSTANCE().skip(event.getTextChannel());
+                PlayerManager.getINSTANCE().skip(event.getGuild());
             }
         }
 

@@ -7,7 +7,7 @@ import qStivi.command.ICommand;
 public class PauseCommand implements ICommand {
     @Override
     public void handle(CommandContext context) {
-        PlayerManager.getINSTANCE().pause(context.getChannel());
+        PlayerManager.getINSTANCE().pause(context.getGuild());
     }
 
     @Override

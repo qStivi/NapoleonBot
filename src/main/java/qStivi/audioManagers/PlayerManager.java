@@ -82,39 +82,69 @@ public class PlayerManager {
     /**
      * Starts playing the next track in the queue.<br><br>
      * If the queue is empty the playback is going to be stopped.
+     *
+     * @param guild is the guild where the music should be skipped.
      */
-    public void skip(TextChannel channel) {
-        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+    public void skip(Guild guild) {
+        final GuildMusicManager musicManager = this.getMusicManager(guild);
 
         musicManager.audioPlayer.startTrack(musicManager.trackScheduler.queue.poll(), false);
     }
 
-    public void pause(TextChannel channel) {
-        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+    /**
+     * Pauses the currently playing track.
+     *
+     * @param guild is the guild where the music should be paused.
+     */
+    public void pause(Guild guild) {
+        final GuildMusicManager musicManager = this.getMusicManager(guild);
 
         musicManager.audioPlayer.setPaused(true);
     }
 
-    public void continueTrack(TextChannel channel) {
-        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+    /**
+     * Continues to play a track if one is paused.
+     *
+     * @param guild is the guild where the music should be continued.
+     */
+    public void continueTrack(Guild guild) {
+        final GuildMusicManager musicManager = this.getMusicManager(guild);
 
         musicManager.audioPlayer.setPaused(false);
     }
 
-    public void setRepeat(TextChannel channel, boolean repeat) {
-        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+    /**
+     * Sets the value of isRepeating
+     *
+     * @param guild  is the guild where the music should be repeated.
+     * @param repeat is the new value.
+     * @see TrackScheduler
+     */
+    public void setRepeat(Guild guild, boolean repeat) {
+        final GuildMusicManager musicManager = this.getMusicManager(guild);
 
         musicManager.trackScheduler.isRepeating = repeat;
     }
 
-    public boolean isRepeating(TextChannel channel) {
-        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+    /**
+     * Returns weather the current track is being repeated or not.
+     *
+     * @param guild is the guild where the music is playing.
+     * @return Boolean of the current repeating state.
+     */
+    public boolean isRepeating(Guild guild) {
+        final GuildMusicManager musicManager = this.getMusicManager(guild);
 
         return musicManager.trackScheduler.isRepeating;
     }
 
-    public void clearQueue(TextChannel channel) {
-        final GuildMusicManager musicManager = this.getMusicManager(channel.getGuild());
+    /**
+     * Clears the current track queue.
+     *
+     * @param guild is the guild where the music is playing.
+     */
+    public void clearQueue(Guild guild) {
+        final GuildMusicManager musicManager = this.getMusicManager(guild);
 
         musicManager.trackScheduler.queue.clear();
     }

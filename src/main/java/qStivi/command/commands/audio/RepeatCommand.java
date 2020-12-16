@@ -8,8 +8,8 @@ public class RepeatCommand implements ICommand {
     @Override
     public void handle(CommandContext context) {
         PlayerManager playerManager = PlayerManager.getINSTANCE();
-        playerManager.setRepeat(context.getChannel(), !playerManager.isRepeating(context.getChannel()));
-        System.out.println(playerManager.isRepeating(context.getChannel()));
+        playerManager.setRepeat(context.getGuild(), !playerManager.isRepeating(context.getGuild()));
+        System.out.println(playerManager.isRepeating(context.getGuild()));
     }
 
     @Override

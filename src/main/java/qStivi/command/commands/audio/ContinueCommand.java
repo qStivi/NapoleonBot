@@ -7,7 +7,7 @@ import qStivi.command.ICommand;
 public class ContinueCommand implements ICommand {
     @Override
     public void handle(CommandContext context) {
-        PlayerManager.getINSTANCE().continueTrack(context.getChannel());
+        PlayerManager.getINSTANCE().continueTrack(context.getGuild());
     }
 
     @Override
