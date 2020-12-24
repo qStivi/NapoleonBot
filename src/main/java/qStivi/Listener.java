@@ -2,6 +2,7 @@ package qStivi;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -31,6 +32,8 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+
+        User user = event.getMessage().getMentionedMembers().get(0).getUser();
 
         if (event.getMessage().getContentRaw().equalsIgnoreCase(prefix + "stop") && event.getAuthor().getId().equals(ownerId)) {
 
