@@ -33,7 +33,7 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 
-        User user = event.getMessage().getMentionedMembers().get(0).getUser();
+        // User user = event.getMessage().getMentionedMembers().get(0).getUser();
 
         if (event.getMessage().getContentRaw().equalsIgnoreCase(prefix + "stop") && event.getAuthor().getId().equals(ownerId)) {
 
