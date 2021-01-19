@@ -18,7 +18,7 @@ public class GoogleCommand implements ICommand {
             if (i < args.size() - 1) searchQuery = searchQuery.concat("%20");
         }
 
-        context.getEvent().getChannel().sendMessage("https://lmgtfy.com/?q=" + searchQuery.strip() + "&iie=1").queue();
+        context.getEvent().getChannel().sendMessage("http://www.justfuckinggoogleit.com/").queue();
     }
 
     @Override
@@ -28,11 +28,6 @@ public class GoogleCommand implements ICommand {
 
     @Override
     public String getHelp() {
-        return "Sends a link to https://lmgtfy.com with the given search query and *Internet Explainer* turned on.";
-    }
-
-    @Override
-    public List<String> getAliases() {
-        return List.of("lmgtfy");
+        return "TODO";
     }
 }
