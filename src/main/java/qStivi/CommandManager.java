@@ -31,6 +31,7 @@ public class CommandManager {
         addCommand(new DndCommand());
         addCommand(new ClearCommand());
         addCommand(new PlayCommand());
+        addCommand(new RedditCommand());
     }
 
     private void addCommand(ICommand command) {

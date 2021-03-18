@@ -1,12 +1,17 @@
 package qStivi;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class Config {
+
+    private static final Logger logger = getLogger(Config.class);
 
     public static String get(String key) {
 
@@ -31,7 +36,20 @@ public class Config {
                     fw.write(System.lineSeparator());
                     fw.write("CHANNEL_ID=Bot channel ID goes here");
                     fw.write(System.lineSeparator());
+                    fw.write(System.lineSeparator());
+                    fw.write("SPOTIFY_ID=Spotify ID goes here");
+                    fw.write(System.lineSeparator());
+                    fw.write("SPOTIFY_SECRET=Spotify secret goes here");
+                    fw.write(System.lineSeparator());
+                    fw.write(System.lineSeparator());
+                    fw.write("REDDIT_ID=Reddit ID goes here");
+                    fw.write(System.lineSeparator());
+                    fw.write("REDDIT_SECRET=Reddit secret goes here");
+                    fw.write(System.lineSeparator());
+                    fw.write("REDDIT_PASSWORD=Reddit password goes here");
+                    fw.write(System.lineSeparator());
                     fw.close();
+                    logger.error("Please configure your data!");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
