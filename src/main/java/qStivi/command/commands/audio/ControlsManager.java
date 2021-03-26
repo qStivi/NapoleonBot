@@ -52,6 +52,8 @@ public class ControlsManager extends ListenerAdapter {
 
             context.getChannel().pinMessageById(this.messageId).queue();
 
+            context.getChannel().deleteMessageById(context.getChannel().getLatestMessageId()).queue();
+
             this.timer.schedule(task, 2000, 2000);
         } else {
             context.getChannel().sendMessage("The Controller is Pinned.").queue();

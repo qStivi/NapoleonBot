@@ -3,12 +3,10 @@ package qStivi.command.commands;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 
-import static qStivi.Bot.audioManager;
-
 public class LeaveCommand implements ICommand {
     @Override
     public void handle(CommandContext context) {
-        if (audioManager != null) audioManager.closeAudioConnection();
+        if (context.getGuild().getAudioManager() != null) context.getGuild().getAudioManager().closeAudioConnection();
     }
 
     @Override

@@ -13,11 +13,11 @@ public class ClearCommand implements ICommand {
 
     @Override
     public String getName() {
-        return "clear";
+        return "stop";
     }
 
     @Override
     public String getHelp() {
-        return "Clears all current playing tracks.";
+        return "Stops nad clears all current playing tracks.";
     }
 }

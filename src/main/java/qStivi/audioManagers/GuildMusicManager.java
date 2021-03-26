@@ -3,6 +3,7 @@ package qStivi.audioManagers;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
+import net.dv8tion.jda.api.managers.AudioManager;
 
 public class GuildMusicManager {
 

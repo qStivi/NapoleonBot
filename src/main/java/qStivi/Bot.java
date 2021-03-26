@@ -1,7 +1,9 @@
 package qStivi;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -15,7 +17,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class Bot {
 
     private static final Logger logger = getLogger(Bot.class);
-    public static AudioManager audioManager = null;
 
     private Bot() {
         try {

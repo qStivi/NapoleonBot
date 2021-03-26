@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
-import static qStivi.Bot.audioManager;
 import static qStivi.command.commands.JoinCommand.join;
 
 public class PlayCommandBackup implements ICommand {
@@ -47,8 +46,8 @@ public class PlayCommandBackup implements ICommand {
         TextChannel channel = context.getChannel();
         List<String> args = context.getArgs();
 
-        if (audioManager == null) join(guild, author);
-        if (!audioManager.isConnected()) join(guild, author);
+        if (context.getGuild().getAudioManager() == null) join(guild, author);
+        if (!context.getGuild().getAudioManager().isConnected()) join(guild, author);
 
         String link = String.join("+", args);
 

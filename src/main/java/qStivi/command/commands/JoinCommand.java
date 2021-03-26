@@ -6,22 +6,24 @@ import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 
 import java.util.List;
-
-import static qStivi.Bot.audioManager;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JoinCommand implements ICommand {
 
-    public static void join(Guild guild, User author) {
+    public static boolean join(Guild guild, User author) {
+        AtomicBoolean successful = new AtomicBoolean(false);
         guild.getVoiceChannels().forEach(
                 (channel) -> channel.getMembers().forEach(
                         (member) -> {
                             if (member.getId().equals(author.getId())) {
-                                audioManager = guild.getAudioManager();
-                                audioManager.openAudioConnection(channel);
+                                //audioManager = guild.getAudioManager();
+                                guild.getAudioManager().openAudioConnection(channel);
+                                successful.set(true);
                             }
                         }
                 )
         );
+        return successful.get();
     }
 
     @Override

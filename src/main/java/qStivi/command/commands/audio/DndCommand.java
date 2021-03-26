@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static qStivi.Bot.audioManager;
 import static qStivi.command.commands.JoinCommand.join;
 
 public class DndCommand implements ICommand {
@@ -49,8 +48,8 @@ public class DndCommand implements ICommand {
     private void play(CommandContext context, String link) {
         Guild guild = context.getGuild();
         User author = context.getAuthor();
-        if (audioManager == null) join(guild, author);
-        if (!audioManager.isConnected()) join(guild, author);
+        if (context.getGuild().getAudioManager() == null) join(guild, author);
+        if (!context.getGuild().getAudioManager().isConnected()) join(guild, author);
         PlayerManager.getINSTANCE().loadAndPlay(context.getChannel(), link);
     }
 

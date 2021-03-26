@@ -58,11 +58,11 @@ public class RollCommand implements ICommand {
 
             EmbedBuilder embed = new EmbedBuilder().setDescription("∑=" + sum + " | Ø=" + mean);
 
-            if (rolls.contains(1) && !rolls.contains(numOfSides)) {
+            if (rolls.stream().filter(integer -> integer == 1).count() > rolls.stream().filter(integer -> integer == numOfSides).count()) {
                 embed.setColor(Color.red);
-            } else if (rolls.contains(numOfSides) && !rolls.contains(1)) {
+            } else if (rolls.stream().filter(integer -> integer == 1).count() < rolls.stream().filter(integer -> integer == numOfSides).count()) {
                 embed.setColor(Color.green);
-            } else if (rolls.containsAll(List.of(1, numOfSides))) {
+            } else if (rolls.containsAll(List.of(1, numOfSides)) && rolls.stream().filter(integer -> integer == 1).count() == rolls.stream().filter(integer -> integer == numOfSides).count()) {
                 embed.setColor(Color.yellow);
             }
 

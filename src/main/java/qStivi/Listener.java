@@ -35,7 +35,7 @@ public class Listener extends ListenerAdapter {
 
         // User user = event.getMessage().getMentionedMembers().get(0).getUser();
 
-        if (event.getMessage().getContentRaw().equalsIgnoreCase(prefix + "stop") && event.getAuthor().getId().equals(ownerId)) {
+        if (event.getMessage().getContentRaw().equalsIgnoreCase(prefix + "shutdown") && event.getAuthor().getId().equals(ownerId)) {
 
             LOGGER.info("Shutting down...");
 
