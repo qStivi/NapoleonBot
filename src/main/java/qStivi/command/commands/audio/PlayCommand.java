@@ -68,10 +68,10 @@ public class PlayCommand implements ICommand {
         }
 
         String arg0 = context.getArgs().get(0);
-        String arg1 = context.getArgs().get(1);
+//        String arg1 = context.getArgs().get(1);
 
         RequestType requestType = getRequestType(arg0);
-
+/*
         if (requestType == RequestType.YOUTUBE) {
             YoutubeType youtubeType = getYouTubeType(arg0);
             if (youtubeType == YoutubeType.TRACK){
@@ -100,7 +100,7 @@ public class PlayCommand implements ICommand {
             logger.error("Something went wrong!");
         }
 
-
+*/
 
 
 
@@ -133,13 +133,13 @@ public class PlayCommand implements ICommand {
             if (trackURL.contains("youtube.com/watch") || trackURL.contains("youtu.be")) {
                 PlayerManager.getINSTANCE().loadAndPlay(context.getChannel(), trackURL);
             } else if (trackURL.contains("youtube.com/playlist")) {
-                youtubePlaylist(args.toString(), context.getChannel());
+//                youtubePlaylist(args.toString(), context.getChannel());
             } else if (trackURL.contains("spotify.com/track")) {
                 spotifyTrack(args.toString(), context.getChannel());
             } else if (trackURL.contains("spotify.com/album")) {
-                spotifyAlbum(args.toString(), context.getChannel());
+//                spotifyAlbum(args.toString(), context.getChannel());
             } else if (trackURL.contains("spotify.com/playlist")) {
-                spotifyPlaylist(args.toString(), context.getChannel());
+//                spotifyPlaylist(args.toString(), context.getChannel());
             } else {
                 context.getChannel().sendMessage("Sorry, but I can't do that.").queue();
                 context.getChannel().sendMessage(trackURL).queue();
