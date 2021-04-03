@@ -6,7 +6,7 @@ group 'qStivi'
 version '1.0-SNAPSHOT'
 
 repositories {
-//    jcenter()
+    jcenter()
     mavenCentral()
     maven {
         name 'm2-dv8tion'
@@ -20,8 +20,13 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
-    // https://github.com/jReddit/jReddit
-    compile group: 'com.github.jreddit', name: 'jreddit', version: '1.0.3'
+    // https://developers.google.com/youtube/v3/docs/search
+    compile 'com.google.api-client:google-api-client:1.23.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev20210210-1.31.0'
+
+    // https://github.com/mattbdean/JRAW
+    implementation "net.dean.jraw:JRAW:1.1.0"
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'

@@ -37,6 +37,8 @@ public class Listener extends ListenerAdapter {
 
         if (event.getMessage().getContentRaw().equalsIgnoreCase(prefix + "shutdown") && event.getAuthor().getId().equals(ownerId)) {
 
+            event.getChannel().sendMessage("https://tenor.com/view/pc-computer-shutting-down-off-windows-computer-gif-17192330").queue();
+
             LOGGER.info("Shutting down...");
 
             ControlsManager.getINSTANCE().deleteMessage();

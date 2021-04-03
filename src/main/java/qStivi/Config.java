@@ -48,8 +48,12 @@ public class Config {
                     fw.write(System.lineSeparator());
                     fw.write("REDDIT_PASSWORD=Reddit password goes here");
                     fw.write(System.lineSeparator());
+                    fw.write(System.lineSeparator());
+                    fw.write("YOUTUBE_KEY=Youtube API key goes here");
+                    fw.write(System.lineSeparator());
                     fw.close();
                     logger.error("Please configure your data!");
+                    System.exit(0);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

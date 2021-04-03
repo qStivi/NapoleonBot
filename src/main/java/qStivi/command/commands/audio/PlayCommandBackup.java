@@ -74,7 +74,7 @@ public class PlayCommandBackup implements ICommand {
                 link = "https://youtu.be/" + Objects.requireNonNull(jsonObject).getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId");
 
 
-                PlayerManager.getINSTANCE().loadAndPlay(channel, link);
+                PlayerManager.getINSTANCE().loadAndPlay(guild, link);
                 return;
             }
         }
@@ -93,7 +93,7 @@ public class PlayCommandBackup implements ICommand {
             link = "https://youtu.be/" + Objects.requireNonNull(jsonObject).getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId");
         }
 
-        PlayerManager.getINSTANCE().loadAndPlay(channel, link);
+        PlayerManager.getINSTANCE().loadAndPlay(guild, link);
     }
 
     private boolean isUrl(String link) {

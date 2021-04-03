@@ -36,21 +36,12 @@ public class DndCommand implements ICommand {
         }
     }
 
-    private boolean isInteger(String string) {
-        try {
-            Integer.parseInt(string);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
-    }
-
     private void play(CommandContext context, String link) {
         Guild guild = context.getGuild();
         User author = context.getAuthor();
         if (context.getGuild().getAudioManager() == null) join(guild, author);
         if (!context.getGuild().getAudioManager().isConnected()) join(guild, author);
-        PlayerManager.getINSTANCE().loadAndPlay(context.getChannel(), link);
+        PlayerManager.getINSTANCE().loadAndPlay(context.getGuild(), link);
     }
 
     private String getHappy() {

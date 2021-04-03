@@ -128,7 +128,9 @@ public class ControlsManager extends ListenerAdapter {
 
     @Override
     public void onGenericMessageReaction(@NotNull GenericMessageReactionEvent event) {
-        if (!Objects.requireNonNull(event.getUser()).isBot()) {
+        if (event.getUser() == null) return;
+        if (event.retrieveMessage().complete().getContentRaw().contains("control"))
+        if (!event.getUser().isBot()) {
 
             if (event.getReactionEmote().getEmoji().equals("⏸")) {
                 PlayerManager.getINSTANCE().pause(event.getGuild());
