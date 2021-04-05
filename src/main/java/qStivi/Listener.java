@@ -62,7 +62,7 @@ public class Listener extends ListenerAdapter {
         /*
         Reactions
          */
-        if (messageRaw.toLowerCase().startsWith("ree") && event.getChannel().getId().equals(channelId)) {
+        if (messageRaw.toLowerCase().startsWith("ree")) {
             String[] words = messageRaw.split("\\s+");
             String ree = words[0];
             String ees = ree.substring(1);

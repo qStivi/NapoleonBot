@@ -14,6 +14,11 @@ public class RollCommand implements ICommand {
     public void handle(CommandContext context) {
         List<String> args = context.getArgs();
 
+        if (args.size() < 1) {
+            context.getChannel().sendMessage(getHelp()).queue();
+            return;
+        }
+
         if (args.get(0).equalsIgnoreCase("stats")) {
 
             // 6*(2d6+6)

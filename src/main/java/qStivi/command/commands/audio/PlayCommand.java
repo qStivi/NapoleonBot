@@ -3,6 +3,7 @@ package qStivi.command.commands.audio;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
+import qStivi.Spotify;
 import qStivi.YouTubeAPI;
 import qStivi.audioManagers.PlayerManager;
 import qStivi.command.CommandContext;
@@ -10,6 +11,7 @@ import qStivi.command.ICommand;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.Normalizer;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,7 +25,13 @@ public class PlayCommand implements ICommand {
     private static final Logger logger = getLogger(PlayCommand.class);
 
     @Override
-    public void handle(CommandContext context) {
+    public void handle(CommandContext context) throws IOException {
+
+        // Only continue if user gave something to play
+        if (context.getArgs().size() < 1) {
+            context.getChannel().sendMessage(getHelp()).queue();
+            return;
+        }
 
         // Check if sender has joined a channel
         if (!join(context.getGuild(), context.getAuthor())) {
@@ -43,47 +51,30 @@ public class PlayCommand implements ICommand {
 
         if (requestType == RequestType.YOUTUBE) {
             YoutubeType youtubeType = getYouTubeType(arg0);
-            if (youtubeType == YoutubeType.TRACK) {
-                playYoutubeTrack(arg0, context.getGuild());
-            } else if (youtubeType == YoutubeType.PLAYLIST) {
-                try {
-                    playYoutubePlaylist(arg0, randomizeOrder, context.getChannel());
-                } catch (IOException e) {
-                    context.getChannel().sendMessage(e.getMessage()).queue();
-                    e.printStackTrace();
+            if (youtubeType != null) {
+                switch (youtubeType) {
+                    case TRACK -> playYoutubeTrack(arg0, context.getGuild());
+                    case PLAYLIST -> playYoutubePlaylist(arg0, randomizeOrder, context.getChannel());
                 }
-            } else {
-                logger.error("Something went wrong!");
             }
         } else if (requestType == RequestType.SPOTIFY) {
             SpotifyType spotifyType = getSpotifyType(arg0);
-            if (spotifyType == SpotifyType.TRACK) {
-                playSpotifyTrack(arg0);
-            } else if (spotifyType == SpotifyType.PLAYLIST) {
-                playSpotifyPlaylist(arg0, randomizeOrder);
-            } else if (spotifyType == SpotifyType.ALBUM) {
-                playSpotifyAlbum(arg0, randomizeOrder);
-            } else if (spotifyType == SpotifyType.ARTIST) {
-                playSpotifyArtist(arg0, randomizeOrder);
-            } else {
-                logger.error("Something went wrong!");
+            if (spotifyType != null) {
+                switch (spotifyType) {
+                    case TRACK -> playSpotifyTrack(arg0, context.getChannel());
+                    case PLAYLIST -> playSpotifyPlaylist(arg0, randomizeOrder);
+                    case ALBUM -> playSpotifyAlbum(arg0, randomizeOrder);
+                    case ARTIST -> playSpotifyArtist(arg0, randomizeOrder);
+                }
             }
         } else if (requestType == RequestType.SEARCH) {
 
             // Combine words
             StringBuilder search = new StringBuilder();
             for (int i = 0; i <= context.getArgs().size() - 1; i++) {
-                search.append(context.getArgs().get(i));
-                if (i < context.getArgs().size() - 1) search.append("+");
+                search.append(context.getArgs().get(i)).append(" ");
             }
-
-            // search play
-            try {
-                searchPlay(search.toString(), context.getChannel());
-            } catch (IOException e) {
-                context.getChannel().sendMessage(e.getMessage()).queue();
-                e.printStackTrace();
-            }
+            searchPlay(search.toString(), context.getChannel());
         } else {
             logger.error("Something went wrong!");
         }
@@ -91,6 +82,7 @@ public class PlayCommand implements ICommand {
 
     private void playSpotifyArtist(String arg0, Boolean randomizeOrder) {
 
+        logger.info(arg0);
         logger.error("NOT YET IMPLEMENTED!");
     }
 
@@ -104,13 +96,31 @@ public class PlayCommand implements ICommand {
         logger.error("NOT YET IMPLEMENTED!");
     }
 
-    private void playSpotifyTrack(String arg0) {
+    private void playSpotifyTrack(String link, TextChannel channel) throws IOException {
 
-        logger.error("NOT YET IMPLEMENTED!");
+        if (link.contains("open.spotify.com/track/")){
+            link = link.replace("https://", "");
+            link = link.split("/")[2];
+            link = link.split("\\?")[0];
+        } else if (link.startsWith("spotify:track:")) {
+            link = link.split(":")[2];
+        }
+
+        Spotify spotify = new Spotify();
+        String search = spotify.getTrackArtists(link) + " " + spotify.getTrackName(link);
+        searchPlay(search, channel);
     }
 
-    private SpotifyType getSpotifyType(String arg0) {
-        logger.error("NOT YET IMPLEMENTED!");
+    private SpotifyType getSpotifyType(String link) {
+        if (link.contains("track")) {
+            return SpotifyType.TRACK;
+        } else if (link.contains("playlist")) {
+            return SpotifyType.PLAYLIST;
+        } else if (link.contains("album")) {
+            return SpotifyType.ALBUM;
+        } else if (link.contains("artist") || link.contains("\uD83E\uDDD1\u200D\uD83C\uDFA8")) {
+            return SpotifyType.ARTIST;
+        }
         return null;
     }
 
@@ -157,20 +167,12 @@ public class PlayCommand implements ICommand {
     }
 
     private void searchPlay(String search, TextChannel channel) throws IOException {
+        search = cleanForURL(search);
         String id = YouTubeAPI.getVideoIdBySearchQuery(search);
         String link = "https://youtu.be/" + id;
         channel.sendMessage(link).queue();
         PlayerManager.getINSTANCE().loadAndPlay(channel.getGuild(), link);
     }
-
-//    private void spotifyTrack(String link, Guild guild) {
-//        Spotify spotify = new Spotify();
-//        String id = link.substring(31, 53);
-//        String string = spotify.getTrackArtists(id) + "+" + spotify.getTrackName(id);
-//        string = string.replace(" ", "+");
-//        String search = search(string);
-//        PlayerManager.getINSTANCE().loadAndPlay(guild, search);
-//    }
 
     private boolean isURL(String s) {
         try {
@@ -188,7 +190,7 @@ public class PlayCommand implements ICommand {
 
     @Override
     public String getHelp() {
-        return "Plays music for you! \n Usage: `/p <link>` `/play <search term>` \n `/pl <link to playlist>` `/p <link to playlist> shuffle` \n `/p <link to playlist> random`";
+        return "Plays music for you! \nAt the moment I can play YouTube and Spotify tracks as well as YouTube playlists. \nUsage: `/p <link>` `/play <search term>`";
     }
 
     @Override
@@ -212,5 +214,14 @@ public class PlayCommand implements ICommand {
         PLAYLIST,
         ALBUM,
         ARTIST
+    }
+
+    public static String cleanForURL(String str)
+    {
+        str = Normalizer.normalize(str, Normalizer.Form.NFKD);
+        str = str.replaceAll("[^a-z0-9A-Z -]", ""); // Remove all non valid chars
+        str = str.replaceAll(" {2}", " ").trim(); // convert multiple spaces into one space
+        str = str.replaceAll(" ", "+"); // //Replace spaces by dashes
+        return str;
     }
 }

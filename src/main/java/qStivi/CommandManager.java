@@ -7,6 +7,7 @@ import qStivi.command.commands.*;
 import qStivi.command.commands.audio.*;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -75,7 +76,11 @@ public class CommandManager {
 
             CommandContext context = new CommandContext(event, args);
 
-            command.handle(context);
+            try {
+                command.handle(context);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             // TODO tell user command was not found.
         }
