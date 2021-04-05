@@ -11,7 +11,10 @@ import qStivi.command.CommandContext;
 import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Random;
+import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ControlsManager extends ListenerAdapter {
     private static ControlsManager INSTANCE;
@@ -36,58 +39,43 @@ public class ControlsManager extends ListenerAdapter {
     }
 
     public void sendMessage(CommandContext context) {
-        if (this.messageId == null) {
-            this.context = context;
-            this.id = PlayerManager.getINSTANCE().getMusicManager(context.getGuild()).audioPlayer.getPlayingTrack().getIdentifier();
-            context.getChannel().sendMessage("Loading...").queue(message -> this.messageId = message.getId());
-            while (this.messageId == null) {
-                Thread.onSpinWait();
-            }
-
-            context.getChannel().addReactionById(this.messageId, "▶").queue();
-            context.getChannel().addReactionById(this.messageId, "⏸").queue();
-            context.getChannel().addReactionById(this.messageId, "⏹").queue();
-            context.getChannel().addReactionById(this.messageId, "\uD83D\uDD02").queue();
-            context.getChannel().addReactionById(this.messageId, "⏭").queue();
-
-            context.getChannel().pinMessageById(this.messageId).queue();
-
-            context.getChannel().deleteMessageById(context.getChannel().getLatestMessageId()).queue();
-
-            this.timer.schedule(task, 2000, 2000);
-        } else {
-            context.getChannel().sendMessage("The Controller is Pinned.").queue();
+        //noinspection StatementWithEmptyBody
+        while (PlayerManager.getINSTANCE().getMusicManager(context.getGuild()).audioPlayer.getPlayingTrack() == null) {
+        } // wait for track to start playing
+        this.context = context;
+        this.id = PlayerManager.getINSTANCE().getMusicManager(context.getGuild()).audioPlayer.getPlayingTrack().getIdentifier();
+        context.getChannel().sendMessage("Loading...").queue(message -> this.messageId = message.getId());
+        while (this.messageId == null) {
+            Thread.onSpinWait();
         }
+
+        context.getChannel().addReactionById(this.messageId, "▶").queue();
+        context.getChannel().addReactionById(this.messageId, "⏸").queue();
+        context.getChannel().addReactionById(this.messageId, "⏹").queue();
+        context.getChannel().addReactionById(this.messageId, "\uD83D\uDD02").queue();
+        context.getChannel().addReactionById(this.messageId, "⏭").queue();
+
+        context.getChannel().editMessageById(messageId, "Currently playing...").queue();
+
+        this.timer.schedule(task, 2000, 2000);
     }
 
     public void deleteMessage() {
         this.task.cancel();
         this.timer.cancel();
-        try {
-            this.context.getChannel().unpinMessageById(this.messageId).queue();
-        } catch (Exception ignored) {
-        }
         this.timer = new Timer();
         this.task = task();
-        try {
-            this.context.getChannel().deleteMessageById(this.messageId).queue();
-        } catch (Exception ignored) {
-        }
+        this.context.getChannel().deleteMessageById(this.messageId).queue();
         this.messageId = null;
     }
 
     private TimerTask task() {
         return new TimerTask() {
-            final long time = System.currentTimeMillis();
 
             @Override
             public void run() {
-                if (System.currentTimeMillis() - time > 1800 * 1000) {
-                    deleteMessage();
-                } else {
-                    Update();
-                    editMessage();
-                }
+                Update();
+                editMessage();
             }
         };
     }
@@ -95,8 +83,8 @@ public class ControlsManager extends ListenerAdapter {
     private void editMessage() {
         Random rand = new Random();
         final float hue = rand.nextFloat();
-        // Saturation between 0.1 and 0.3
-        final float saturation = (rand.nextInt(2000) + 1000) / 10000f;
+        // Saturation between 0.1 and 0.5
+        final float saturation = (rand.nextInt(5000) + 1000) / 10000f;
         final float luminance = 0.9f;
         final Color color = Color.getHSBColor(hue, saturation, luminance);
 
@@ -104,12 +92,21 @@ public class ControlsManager extends ListenerAdapter {
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         String timeRemainingFormatted = formatter.format(this.timeRemaining);
         String totalTimeFormatted = formatter.format(this.totalTime);
+        if (this.totalTime > 3600000) {
+            totalTimeFormatted = "Too long bitch!";
+        }
 
 
         this.embed.setColor(color)
                 .setAuthor(interpret)
                 .setTitle(name, "https://youtu.be/" + this.id)
                 .setDescription(timeRemainingFormatted + "o-------------------------------------------------" + totalTimeFormatted);
+
+        if (PlayerManager.getINSTANCE().isRepeating(this.context.getGuild())) {
+            this.embed.setFooter("Currently repeating");
+        } else {
+            this.embed.setFooter(null);
+        }
 
         if (messageId != null) this.context.getChannel().editMessageById(this.messageId, this.embed.build()).queue();
     }
@@ -129,37 +126,30 @@ public class ControlsManager extends ListenerAdapter {
     @Override
     public void onGenericMessageReaction(@NotNull GenericMessageReactionEvent event) {
         if (event.getUser() == null) return;
-        if (event.retrieveMessage().complete().getContentRaw().contains("control"))
-        if (!event.getUser().isBot()) {
+        if (event.retrieveMessage().complete().getContentRaw().contains("Currently playing..."))
+            if (!event.getUser().isBot()) {
 
-            if (event.getReactionEmote().getEmoji().equals("⏸")) {
-                PlayerManager.getINSTANCE().pause(event.getGuild());
-            }
+                if (event.getReactionEmote().getEmoji().equals("⏸")) {
+                    PlayerManager.getINSTANCE().pause(event.getGuild());
+                }
 
-            if (event.getReactionEmote().getEmoji().equals("▶")) {
-                PlayerManager.getINSTANCE().continueTrack(event.getGuild());
-            }
+                if (event.getReactionEmote().getEmoji().equals("▶")) {
+                    PlayerManager.getINSTANCE().continueTrack(event.getGuild());
+                }
 
-            if (event.getReactionEmote().getEmoji().equals("⏹")) {
-                PlayerManager.getINSTANCE().clearQueue(event.getGuild());
-            }
+                if (event.getReactionEmote().getEmoji().equals("⏹")) {
+                    PlayerManager.getINSTANCE().clearQueue(event.getGuild());
+                    PlayerManager.getINSTANCE().skip(event.getGuild());
+                }
 
-            if (event.getReactionEmote().getEmoji().equals("\uD83D\uDD02")) {
-                PlayerManager.getINSTANCE().setRepeat(event.getGuild(), !PlayerManager.getINSTANCE().isRepeating(event.getGuild()));
-            }
+                if (event.getReactionEmote().getEmoji().equals("\uD83D\uDD02")) {
+                    PlayerManager.getINSTANCE().setRepeat(event.getGuild(), !PlayerManager.getINSTANCE().isRepeating(event.getGuild()));
+                }
 
-            if (event.getReactionEmote().getEmoji().equals("⏭")) {
-                PlayerManager.getINSTANCE().skip(event.getGuild());
+                if (event.getReactionEmote().getEmoji().equals("⏭")) {
+                    PlayerManager.getINSTANCE().skip(event.getGuild());
+                }
             }
-        }
 
     }
-
-//    @Override
-//    public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-////        if (event.getMessageId().equals(this.messageId)){
-////            event.getChannel().sendMessage(event.getMessageId() + " | " + messageId).queue();
-////            deleteMessage();
-////        }
-//    }
 }

@@ -6,7 +6,8 @@ import qStivi.command.ICommand;
 public class LeaveCommand implements ICommand {
     @Override
     public void handle(CommandContext context) {
-        if (context.getGuild().getAudioManager() != null) context.getGuild().getAudioManager().closeAudioConnection();
+        context.getGuild().getAudioManager();
+        context.getGuild().getAudioManager().closeAudioConnection();
     }
 
     @Override

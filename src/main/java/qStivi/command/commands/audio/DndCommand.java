@@ -39,7 +39,7 @@ public class DndCommand implements ICommand {
     private void play(CommandContext context, String link) {
         Guild guild = context.getGuild();
         User author = context.getAuthor();
-        if (context.getGuild().getAudioManager() == null) join(guild, author);
+        context.getGuild().getAudioManager();
         if (!context.getGuild().getAudioManager().isConnected()) join(guild, author);
         PlayerManager.getINSTANCE().loadAndPlay(context.getGuild(), link);
     }

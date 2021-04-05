@@ -8,9 +8,11 @@ import qStivi.Config;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 
+import java.io.IOException;
 import java.util.List;
 
 public class HelpCommand implements ICommand {
+
 
     private final CommandManager manager;
 
@@ -19,7 +21,7 @@ public class HelpCommand implements ICommand {
     }
 
     @Override
-    public void handle(CommandContext context) {
+    public void handle(CommandContext context) throws IOException {
 
         List<String> args = context.getArgs();
         TextChannel channel = context.getChannel();

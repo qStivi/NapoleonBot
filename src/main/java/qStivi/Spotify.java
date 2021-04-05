@@ -17,7 +17,10 @@ import java.net.URLConnection;
 import java.util.*;
 
 public class Spotify {
+
+
     private static final String clientId = Config.get("SPOTIFY_ID");
+
     private static final String clientSecret = Config.get("SPOTIFY_SECRET");
 
     private static final SpotifyApi spotifyApi = new SpotifyApi.Builder()
@@ -25,55 +28,37 @@ public class Spotify {
             .setClientSecret(clientSecret)
             .build();
 
-    public Spotify() {
+    public Spotify() throws IOException, SpotifyWebApiException, ParseException {
         ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials().build();
-        try {
-            final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
+        final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
 
-            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+        spotifyApi.setAccessToken(clientCredentials.getAccessToken());
 
 //            System.out.println("Token: " + clientCredentials.getAccessToken());
 //            System.out.println("Expires in: " + clientCredentials.getExpiresIn());
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
     }
 
-    public String getTrackName(String id) {
+    public String getTrackName(String id) throws IOException, SpotifyWebApiException, ParseException {
         GetTrackRequest getTrackRequest = spotifyApi.getTrack(id).build();
-        try {
-            final Track track = getTrackRequest.execute();
-            return track.getName();
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-            return null;
-        }
+        final Track track = getTrackRequest.execute();
+        return track.getName();
     }
 
-    public String getTrackArtists(String id) {
+    public String getTrackArtists(String id) throws IOException, SpotifyWebApiException, ParseException {
         GetTrackRequest getTrackRequest = spotifyApi.getTrack(id).build();
-        try {
-            final Track track = getTrackRequest.execute();
-            return Arrays.stream(track.getArtists()).findFirst().get().getName();
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-            return null;
-        }
+        final Track track = getTrackRequest.execute();
+        return Arrays.stream(track.getArtists()).findFirst().get().getName();
     }
 
     // https://developer.spotify.com/console/get-playlist-tracks/?playlist_id=3cEYpjA9oz9GiPac4AsH4n&market=ES&fields=items(added_by.id%2Ctrack(name%2Chref%2Calbum(name%2Chref)))&limit=10&offset=5&additional_types=
-    public List<String> getPlaylist(String id) {
-        InputStream response = null;
+    public List<String> getPlaylist(String id) throws IOException {
+        InputStream response;
         List<String> finalOutput = new ArrayList<>();
-        try {
-            URLConnection connection = new URL("https://api.spotify.com/v1/playlists/" + id + "/tracks?market=DE&fields=items(track(name%2C%20artists(name)))").openConnection();
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Authorization", "Bearer " + spotifyApi.getAccessToken());
-            response = connection.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        URLConnection connection = new URL("https://api.spotify.com/v1/playlists/" + id + "/tracks?market=DE&fields=items(track(name%2C%20artists(name)))").openConnection();
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Authorization", "Bearer " + spotifyApi.getAccessToken());
+        response = connection.getInputStream();
         try (Scanner scanner = new Scanner(Objects.requireNonNull(response))) {
             String responseBody = scanner.useDelimiter("\\A").next();
             JSONObject jsonObject = new JSONObject(responseBody);

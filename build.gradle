@@ -9,12 +9,13 @@ repositories {
     jcenter()
     mavenCentral()
     maven {
-        name 'm2-dv8tion'
+//        name 'm2-dv8tion'
         url 'https://m2.dv8tion.net/releases'
     }
     maven {
         url "https://dl.bintray.com/sedmelluq/com.sedmelluq"
     }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -27,7 +28,8 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
 
     // https://github.com/DV8FromTheWorld/JDA
-    compile group: 'net.dv8tion', name: 'JDA', version: '4.2.0_252'
+//    compile group: 'net.dv8tion', name: 'JDA', version: '4.2.0_252'
+    compile 'com.github.dv8fromtheworld:jda:feature~slash-commands-SNAPSHOT'
 
     // https://github.com/sedmelluq/LavaPlayer#lavaplayer---audio-player-library-for-discord
     implementation 'com.sedmelluq:lavaplayer:1.3.74'

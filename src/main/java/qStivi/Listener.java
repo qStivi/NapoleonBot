@@ -1,23 +1,21 @@
 package qStivi;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import qStivi.command.commands.audio.ControlsManager;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class Listener extends ListenerAdapter {
 
-    private static final Logger LOGGER = getLogger(Listener.class);
+    private static final Logger logger = getLogger(Listener.class);
     private final CommandManager commandManager = new CommandManager();
 
     String prefix = Config.get("PREFIX");
@@ -26,8 +24,8 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        LOGGER.info("Ready!");
-        event.getJDA().getTextChannelById(channelId).sendMessage("Ready!").queue();
+        logger.info("Ready!");
+        Objects.requireNonNull(event.getJDA().getTextChannelById(channelId)).sendMessage("Ready!").queue();
     }
 
     @Override
@@ -39,7 +37,7 @@ public class Listener extends ListenerAdapter {
 
             event.getChannel().sendMessage("https://tenor.com/view/pc-computer-shutting-down-off-windows-computer-gif-17192330").queue();
 
-            LOGGER.info("Shutting down...");
+            logger.info("Shutting down...");
 
             ControlsManager.getINSTANCE().deleteMessage();
 
@@ -57,7 +55,13 @@ public class Listener extends ListenerAdapter {
         String messageRaw = event.getMessage().getContentRaw();
         MessageChannel channel = event.getChannel();
 
-        if (messageRaw.startsWith(prefix)) commandManager.handle(event);
+        if (messageRaw.startsWith(prefix)) {
+            try {
+                commandManager.handle(event);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+        }
 
         /*
         Reactions
@@ -66,11 +70,7 @@ public class Listener extends ListenerAdapter {
             String[] words = messageRaw.split("\\s+");
             String ree = words[0];
             String ees = ree.substring(1);
-            try {
-                channel.sendMessage(ree + ees + ees).queue();
-            } catch (IllegalArgumentException ex) {
-                channel.sendMessage("r" + ees).queue();
-            }
+            channel.sendMessage(ree + ees + ees).queue();
         }
 
         if (messageRaw.toLowerCase().startsWith("hmm")) {

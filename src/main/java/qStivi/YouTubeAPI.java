@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class YouTubeAPI {
+
     private static final String SECRET = Config.get("YOUTUBE_KEY");
 
     public static String getVideoIdBySearchQuery(String searchQuery) throws IOException {

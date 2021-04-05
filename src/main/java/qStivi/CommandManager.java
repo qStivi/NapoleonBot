@@ -1,6 +1,8 @@
 package qStivi;
 
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import org.apache.hc.core5.http.ParseException;
 import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 import qStivi.command.commands.*;
@@ -17,7 +19,7 @@ public class CommandManager {
     private final List<ICommand> commands = new ArrayList<>();
 
     public CommandManager() {
-        addCommand(new PingCommand());
+//        addCommand(new PingCommand());
         addCommand(new GoogleCommand());
         addCommand(new HelpCommand(this));
         addCommand(new LeaveCommand());
@@ -27,7 +29,6 @@ public class CommandManager {
         addCommand(new ContinueCommand());
         addCommand(new RollCommand());
         addCommand(new RepeatCommand());
-        addCommand(new ControlsCommand());
         addCommand(new CleanCommand());
         addCommand(new DndCommand());
         addCommand(new ClearCommand());
@@ -62,7 +63,7 @@ public class CommandManager {
         return null;
     }
 
-    void handle(GuildMessageReceivedEvent event) {
+    void handle(GuildMessageReceivedEvent event) throws IOException, ParseException, SpotifyWebApiException {
         String[] split = event.getMessage().getContentRaw()
                 .replaceFirst("(?i)" + Pattern.quote(Config.get("PREFIX")), "")
                 .split("\\s+");
@@ -76,11 +77,7 @@ public class CommandManager {
 
             CommandContext context = new CommandContext(event, args);
 
-            try {
-                command.handle(context);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            command.handle(context);
         } else {
             // TODO tell user command was not found.
         }

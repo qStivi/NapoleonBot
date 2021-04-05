@@ -1,7 +1,9 @@
 package qStivi.command.commands.audio;
 
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.apache.hc.core5.http.ParseException;
 import org.slf4j.Logger;
 import qStivi.Spotify;
 import qStivi.YouTubeAPI;
@@ -10,7 +12,6 @@ import qStivi.command.CommandContext;
 import qStivi.command.ICommand;
 
 import java.io.IOException;
-import java.net.URL;
 import java.text.Normalizer;
 import java.util.Collections;
 import java.util.List;
@@ -18,14 +19,21 @@ import java.util.List;
 import static org.slf4j.LoggerFactory.getLogger;
 import static qStivi.command.commands.JoinCommand.join;
 
-@SuppressWarnings({"unused", "CommentedOutCode"})
 public class PlayCommand implements ICommand {
 
 
     private static final Logger logger = getLogger(PlayCommand.class);
 
+    public static String cleanForURL(String str) {
+        str = Normalizer.normalize(str, Normalizer.Form.NFKD);
+        str = str.replaceAll("[^a-z0-9A-Z -]", ""); // Remove all non valid chars
+        str = str.replaceAll(" {2}", " ").trim(); // convert multiple spaces into one space
+        str = str.replaceAll(" ", "+"); // //Replace spaces by dashes
+        return str;
+    }
+
     @Override
-    public void handle(CommandContext context) throws IOException {
+    public void handle(CommandContext context) throws IOException, ParseException, SpotifyWebApiException {
 
         // Only continue if user gave something to play
         if (context.getArgs().size() < 1) {
@@ -42,10 +50,7 @@ public class PlayCommand implements ICommand {
         // Get command arguments
         String arg0 = context.getArgs().get(0);
         Boolean randomizeOrder = false;
-        try {
-            if (context.getArgs().get(1).toLowerCase().contains("random") || context.getArgs().get(1).toLowerCase().contains("shuffle")) randomizeOrder = true;
-        } catch (Exception ignored) {
-        }
+        if (context.getArgs().get(1).toLowerCase().contains("random") || context.getArgs().get(1).toLowerCase().contains("shuffle")) randomizeOrder = true;
 
         RequestType requestType = getRequestType(arg0);
 
@@ -75,9 +80,9 @@ public class PlayCommand implements ICommand {
                 search.append(context.getArgs().get(i)).append(" ");
             }
             searchPlay(search.toString(), context.getChannel());
-        } else {
-            logger.error("Something went wrong!");
         }
+        ControlsManager.getINSTANCE().deleteMessage();
+        ControlsManager.getINSTANCE().sendMessage(context);
     }
 
     private void playSpotifyArtist(String arg0, Boolean randomizeOrder) {
@@ -96,9 +101,9 @@ public class PlayCommand implements ICommand {
         logger.error("NOT YET IMPLEMENTED!");
     }
 
-    private void playSpotifyTrack(String link, TextChannel channel) throws IOException {
+    private void playSpotifyTrack(String link, TextChannel channel) throws IOException, ParseException, SpotifyWebApiException {
 
-        if (link.contains("open.spotify.com/track/")){
+        if (link.contains("open.spotify.com/track/")) {
             link = link.replace("https://", "");
             link = link.split("/")[2];
             link = link.split("\\?")[0];
@@ -174,15 +179,6 @@ public class PlayCommand implements ICommand {
         PlayerManager.getINSTANCE().loadAndPlay(channel.getGuild(), link);
     }
 
-    private boolean isURL(String s) {
-        try {
-            new URL(s).toURI();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     @Override
     public String getName() {
         return "play";
@@ -214,14 +210,5 @@ public class PlayCommand implements ICommand {
         PLAYLIST,
         ALBUM,
         ARTIST
-    }
-
-    public static String cleanForURL(String str)
-    {
-        str = Normalizer.normalize(str, Normalizer.Form.NFKD);
-        str = str.replaceAll("[^a-z0-9A-Z -]", ""); // Remove all non valid chars
-        str = str.replaceAll(" {2}", " ").trim(); // convert multiple spaces into one space
-        str = str.replaceAll(" ", "+"); // //Replace spaces by dashes
-        return str;
     }
 }

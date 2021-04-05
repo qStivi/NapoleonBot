@@ -14,6 +14,7 @@ public class Config {
     private static final Logger logger = getLogger(Config.class);
 
     public static String get(String key) {
+        String result = "";
 
         File f = new File(System.getProperty("user.dir") + "\\.env");
 
@@ -21,7 +22,7 @@ public class Config {
 
         if (f.exists() && !f.isDirectory()) {
             DOTENV = Dotenv.load();
-            return DOTENV.get(key);
+            result = DOTENV.get(key);
         } else {
             boolean fileCreated;
             try {
@@ -56,11 +57,11 @@ public class Config {
                     System.exit(0);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
         }
 
-        return "";
+        return result;
     }
 
 }
