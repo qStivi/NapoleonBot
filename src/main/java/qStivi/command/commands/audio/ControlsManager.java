@@ -2,11 +2,13 @@ package qStivi.command.commands.audio;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import qStivi.audioManagers.PlayerManager;
-import qStivi.command.CommandContext;
 
 import java.awt.*;
 import java.text.DateFormat;
@@ -26,8 +28,7 @@ public class ControlsManager extends ListenerAdapter {
     private long timeRemaining;
     private String name;
     private String interpret;
-    private CommandContext context;
-    private TimerTask task = task();
+    TimerTask task;
 
     public static ControlsManager getINSTANCE() {
 
@@ -38,49 +39,53 @@ public class ControlsManager extends ListenerAdapter {
         return INSTANCE;
     }
 
-    public void sendMessage(CommandContext context) {
+    public void sendMessage(TextChannel channel, Guild guild) {
         //noinspection StatementWithEmptyBody
-        while (PlayerManager.getINSTANCE().getMusicManager(context.getGuild()).audioPlayer.getPlayingTrack() == null) {
+        while (PlayerManager.getINSTANCE().getMusicManager(guild).audioPlayer.getPlayingTrack() == null) {
         } // wait for track to start playing
-        this.context = context;
-        this.id = PlayerManager.getINSTANCE().getMusicManager(context.getGuild()).audioPlayer.getPlayingTrack().getIdentifier();
-        context.getChannel().sendMessage("Loading...").queue(message -> this.messageId = message.getId());
+        this.id = PlayerManager.getINSTANCE().getMusicManager(guild).audioPlayer.getPlayingTrack().getIdentifier();
+        channel.sendMessage("Loading...").queue(message -> this.messageId = message.getId());
         while (this.messageId == null) {
             Thread.onSpinWait();
         }
 
-        context.getChannel().addReactionById(this.messageId, "▶").queue();
-        context.getChannel().addReactionById(this.messageId, "⏸").queue();
-        context.getChannel().addReactionById(this.messageId, "⏹").queue();
-        context.getChannel().addReactionById(this.messageId, "\uD83D\uDD02").queue();
-        context.getChannel().addReactionById(this.messageId, "⏭").queue();
+        channel.addReactionById(this.messageId, "▶").queue();
+        channel.addReactionById(this.messageId, "⏸").queue();
+        channel.addReactionById(this.messageId, "⏹").queue();
+        channel.addReactionById(this.messageId, "\uD83D\uDD02").queue();
+        channel.addReactionById(this.messageId, "⏭").queue();
 
-        context.getChannel().editMessageById(messageId, "Currently playing...").queue();
+        channel.editMessageById(messageId, "Currently playing...").queue();
 
+        task = task(channel, guild);
         this.timer.schedule(task, 2000, 2000);
     }
 
-    public void deleteMessage() {
+    public void deleteMessage(TextChannel channel, Guild guild) {
         this.task.cancel();
         this.timer.cancel();
         this.timer = new Timer();
-        this.task = task();
-        this.context.getChannel().deleteMessageById(this.messageId).queue();
+        this.task = task(channel, guild);
+        try {
+            channel.deleteMessageById(this.messageId).queue();
+        } catch (IllegalArgumentException e){
+            e.printStackTrace();
+        }
         this.messageId = null;
     }
 
-    private TimerTask task() {
+    private TimerTask task(TextChannel channel, Guild guild) {
         return new TimerTask() {
 
             @Override
             public void run() {
-                Update();
-                editMessage();
+                Update(channel, guild);
+                editMessage(channel, guild);
             }
         };
     }
 
-    private void editMessage() {
+    private void editMessage(TextChannel channel, Guild guild) {
         Random rand = new Random();
         final float hue = rand.nextFloat();
         // Saturation between 0.1 and 0.5
@@ -102,24 +107,25 @@ public class ControlsManager extends ListenerAdapter {
                 .setTitle(name, "https://youtu.be/" + this.id)
                 .setDescription(timeRemainingFormatted + "o-------------------------------------------------" + totalTimeFormatted);
 
-        if (PlayerManager.getINSTANCE().isRepeating(this.context.getGuild())) {
+        if (PlayerManager.getINSTANCE().isRepeating(guild)) {
             this.embed.setFooter("Currently repeating");
         } else {
             this.embed.setFooter(null);
         }
 
-        if (messageId != null) this.context.getChannel().editMessageById(this.messageId, this.embed.build()).queue();
+        if (messageId != null) channel.editMessageById(this.messageId, this.embed.build()).queue();
     }
 
-    private void Update() {
-        AudioTrack track = PlayerManager.getINSTANCE().getMusicManager(this.context.getGuild()).audioPlayer.getPlayingTrack();
+    private void Update(TextChannel channel, Guild guild) {
+        AudioTrack track = PlayerManager.getINSTANCE().getMusicManager(guild).audioPlayer.getPlayingTrack();
         if (track != null) {
             this.totalTime = track.getDuration();
             this.timeRemaining = track.getPosition();
             this.name = track.getInfo().title;
+            this.id = PlayerManager.getINSTANCE().getMusicManager(guild).audioPlayer.getPlayingTrack().getIdentifier();
             this.interpret = track.getInfo().author;
         } else {
-            deleteMessage();
+            deleteMessage(channel, guild);
         }
     }
 

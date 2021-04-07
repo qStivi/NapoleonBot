@@ -59,7 +59,7 @@ public class Spotify {
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Authorization", "Bearer " + spotifyApi.getAccessToken());
         response = connection.getInputStream();
-        try (Scanner scanner = new Scanner(Objects.requireNonNull(response))) {
+        try (Scanner scanner = new Scanner(response)) {
             String responseBody = scanner.useDelimiter("\\A").next();
             JSONObject jsonObject = new JSONObject(responseBody);
             JSONArray items = jsonObject.getJSONArray("items");
