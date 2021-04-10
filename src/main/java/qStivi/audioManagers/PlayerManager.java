@@ -9,9 +9,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import qStivi.command.CommandContext;
-import qStivi.command.commands.audio.ControlsManager;
 
 import java.util.HashMap;
 import java.util.List;
