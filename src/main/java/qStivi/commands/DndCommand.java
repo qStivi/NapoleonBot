@@ -2,17 +2,21 @@ package qStivi.commands;
 
 import net.dv8tion.jda.api.commands.CommandHook;
 import net.dv8tion.jda.api.entities.Command;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
 import org.jetbrains.annotations.NotNull;
 import qStivi.ICommand;
 import qStivi.audioManagers.PlayerManager;
+import qStivi.listeners.ControlsManager;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static qStivi.commands.JoinCommand.join;
 
 public class DndCommand implements ICommand {
 
@@ -51,10 +55,12 @@ public class DndCommand implements ICommand {
         fightList.add("https://www.youtube.com/watch?v=GmwzWYzgoRk"); // Child of Light OST 04.Jupiter's Lightning
         fightList.add("https://www.youtube.com/watch?v=Mp6uzqMNTeU"); // Sword Art Online OST - We Have To Defeat It
         fightList.add("https://www.youtube.com/watch?v=P244DsBEYxs"); // Star Wars - Battle of the Heroes Suite
+        fightList.add("https://youtu.be/Fc9nTcROQtw"); // Two Steps From Hell - Norwegian pirate
 
         bossList.add("https://www.youtube.com/watch?v=xlYCxbBZUCY"); // John Williams - Duel of the Fates (Star Wars Soundtrack) [HQ]
         bossList.add("https://www.youtube.com/watch?v=KhPNuBi8pJM"); // World's Most Emotional Music | by Max Legend
         bossList.add("https://www.youtube.com/watch?v=TQUsnto_3pw"); // Shingeki no Kyojin - Attack on Titan Fight Theme
+        bossList.add("https://youtu.be/XJoHG6sRKqU"); // The Place We Should Have Reached
 
         pirateList.add("https://youtu.be/7jW-JX3b6P0"); // The Sea of Thieves | Sea of Thieves OST
         pirateList.add("https://youtu.be/je09UmgAn2c"); // Maiden Voyage | Sea of Thieves OST
@@ -89,6 +95,11 @@ public class DndCommand implements ICommand {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void handle(SlashCommandEvent event) {
+        var hook = event.getHook();
+        if (!join(event.getGuild(), event.getUser())) {
+            hook.sendMessage("Please join a channel, so I can play your request.").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
+            return;
+        }
 
         PlayerManager.getINSTANCE().clearQueue(event.getGuild());
 
@@ -99,7 +110,9 @@ public class DndCommand implements ICommand {
 
         PlayerManager.getINSTANCE().skip(event.getGuild());
 
-        event.reply("Playing D&D music.").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+        hook.sendMessage("Playing D&D music.").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
+
+        ControlsManager.getINSTANCE().sendMessage(event.getTextChannel(), event.getGuild());
     }
 
     private String getSongByType(String type) {

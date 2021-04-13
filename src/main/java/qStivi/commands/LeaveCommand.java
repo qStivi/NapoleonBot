@@ -1,6 +1,7 @@
 package qStivi.commands;
 
 import net.dv8tion.jda.api.commands.CommandHook;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
 import org.jetbrains.annotations.NotNull;
@@ -19,9 +20,10 @@ public class LeaveCommand implements ICommand {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void handle(SlashCommandEvent event) {
+        var hook = event.getHook();
         event.getGuild().getAudioManager();
         event.getGuild().getAudioManager().closeAudioConnection();
-        event.reply("Bye Bye").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+        hook.sendMessage("Bye Bye").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
     }
 
     @Override

@@ -18,15 +18,13 @@ public class Listener extends ListenerAdapter {
     private static final Logger logger = getLogger(Listener.class);
 //    private final CommandManager commandManager = new CommandManager();
 
-    String prefix = Config.get("PREFIX");
-    String ownerId = Config.get("OWNER_ID");
     String channelId = Config.get("CHANNEL_ID");
 
     @SuppressWarnings("ConstantConditions")
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         logger.info("Ready!");
-        event.getJDA().getTextChannelById(channelId).sendMessage("Ready!").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
+        event.getJDA().getTextChannelById(channelId).sendMessage("Booting... Ready when message disappears.").delay(Duration.ofSeconds(90)).flatMap(Message::delete).queue();
     }
 
     @SuppressWarnings("ConstantConditions")

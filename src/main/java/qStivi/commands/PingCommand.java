@@ -23,15 +23,16 @@ public class PingCommand implements ICommand {
 
     @Override
     public void handle(SlashCommandEvent event) {
+        var hook = event.getHook();
         long gatewayPing = event.getJDA().getGatewayPing();
         event.getJDA().getRestPing().queue((ping) -> {
-            event.getTextChannel().sendMessage("Pinging...").flatMap(Message::delete).queue();
+            hook.sendMessage("Pinging...").flatMap(Message::delete).queue();
             this.ping = ping;
         });
         while (ping == null) {
             Thread.onSpinWait();
         }
-        event.reply(MessageFormat.format("My Ping to Discord: {0}ms\nMy Ping to you: {1}ms", gatewayPing, ping)).setEphemeral(true).queue();
+        hook.editOriginal(MessageFormat.format("My Ping to Discord: {0}ms\nMy Ping to you: {1}ms", gatewayPing, ping)).delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
 
     }
 

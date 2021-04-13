@@ -3,6 +3,7 @@ package qStivi.commands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.commands.CommandHook;
 import net.dv8tion.jda.api.entities.Command;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
@@ -22,23 +23,24 @@ public class RollCommand implements ICommand {
     @Nonnull
     public CommandUpdateAction.@NotNull CommandData getCommand() {
         return new CommandUpdateAction.CommandData(getName(), getDescription())
-                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.STRING, "roll", "A roll query. Something like `stats` or `3d6`.")
+                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.STRING, "query", "A roll query. Something like `stats` or `3d6`.")
                         .setRequired(true));
     }
 
     @SuppressWarnings("ConstantConditions")
     @Override
     public void handle(SlashCommandEvent event) {
-        var rollInput = event.getOption("roll").getAsString();
+        var hook = event.getHook();
+        var rollInput = event.getOption("query").getAsString();
         if (rollInput.equals("stats")) {
-            event.reply(statsRoll()).delay(Duration.ofDays(1)).flatMap(CommandHook::deleteOriginal).queue();
+            hook.sendMessage(statsRoll()).delay(Duration.ofDays(1)).flatMap(Message::delete).queue();
         } else {
             var result = normalRoll(rollInput);
             if (result == null) {
-                event.reply("This is not a valid roll!").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+                hook.sendMessage("This is not a valid roll!\nExample: `6d8`").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
                 return;
             }
-            event.reply(result).delay(Duration.ofDays(1)).flatMap(CommandHook::deleteOriginal).queue();
+            hook.sendMessage(result).delay(Duration.ofDays(1)).flatMap(Message::delete).queue();
         }
     }
 

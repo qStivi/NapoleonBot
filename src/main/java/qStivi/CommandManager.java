@@ -43,6 +43,7 @@ public class CommandManager extends ListenerAdapter {
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
         for (ICommand command : commandList) {
             if (command.getCommand().getName().equals(event.getName())) {
+                event.acknowledge().queue();
                 command.handle(event);
             }
         }

@@ -1,6 +1,7 @@
 package qStivi.commands;
 
 import net.dv8tion.jda.api.commands.CommandHook;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
 import qStivi.ICommand;
@@ -18,12 +19,13 @@ public class RepeatCommand implements ICommand {
 
     @Override
     public void handle(SlashCommandEvent event) {
+        var hook = event.getHook();
         PlayerManager playerManager = PlayerManager.getINSTANCE();
         playerManager.setRepeat(event.getGuild(), !playerManager.isRepeating(event.getGuild()));
         if (playerManager.isRepeating(event.getGuild())) {
-            event.reply("Repeat: ON").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+            hook.sendMessage("Repeat: ON").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
         } else {
-            event.reply("Repeat: OFF").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+            hook.sendMessage("Repeat: OFF").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
         }
     }
 

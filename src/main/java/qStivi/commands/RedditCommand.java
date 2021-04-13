@@ -38,6 +38,7 @@ public class RedditCommand implements ICommand {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void handle(SlashCommandEvent event) {
+        var hook = event.getHook();
 
         String url;
 
@@ -57,23 +58,23 @@ public class RedditCommand implements ICommand {
         if (link.contains("i.redd.it") || link.contains("v.redd.it") || link.contains("youtu.be") || link.contains("youtube.com") || link.contains("imgur.com") || link.contains("giphy.com") || link.contains("gfycat.com")) {
 
             if (link.contains("i.redd.it")) {
-                event.reply(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(CommandHook::deleteOriginal).queue();
-                event.getTextChannel().sendMessage(url).queue();
+                hook.sendMessage(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
+                event.getTextChannel().sendMessage(url).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
             } else if (link.contains("v.redd.it")) {
                 if (submissionSubject.getEmbeddedMedia() != null) {
                     if (submissionSubject.getEmbeddedMedia().getRedditVideo() != null) {
-                        event.reply(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(CommandHook::deleteOriginal).queue();
+                        hook.sendMessage(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
                         event.getTextChannel().sendMessage(submissionSubject.getEmbeddedMedia().getRedditVideo().getFallbackUrl()).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
                     }
-                } else event.reply(permalink(randomSubmission)).delay(Duration.ofHours(1)).flatMap(CommandHook::deleteOriginal).queue(); // This is usually a cross post
+                } else hook.sendMessage(permalink(randomSubmission)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue(); // This is usually a cross post
 
             } else {
-                event.reply(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(CommandHook::deleteOriginal).queue();
+                hook.sendMessage(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
                 event.getTextChannel().sendMessage(url).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
             }
 
         } else {
-            event.reply(permalink(randomSubmission)).delay(Duration.ofHours(1)).flatMap(CommandHook::deleteOriginal).queue();
+            hook.sendMessage(permalink(randomSubmission)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
         }
     }
 

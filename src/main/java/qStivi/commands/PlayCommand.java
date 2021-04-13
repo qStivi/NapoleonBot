@@ -1,9 +1,9 @@
 package qStivi.commands;
 
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import net.dv8tion.jda.api.commands.CommandHook;
 import net.dv8tion.jda.api.entities.Command;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
@@ -21,6 +21,7 @@ import java.text.Normalizer;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static qStivi.commands.JoinCommand.join;
@@ -47,8 +48,8 @@ public class PlayCommand implements ICommand {
             YoutubeType youtubeType = getYouTubeType(song);
             if (youtubeType != null) {
                 switch (youtubeType) {
-                    case TRACK -> playYoutubeTrack(song, channel, guild);
-                    case PLAYLIST -> playYoutubePlaylist(song, shuffle, channel);
+                    case TRACK -> song = playYoutubeTrack(song, channel, guild);
+                    case PLAYLIST -> song = playYoutubePlaylist(song, shuffle, channel);
                 }
             }
         } else if (requestType == RequestType.SPOTIFY) {
@@ -56,37 +57,36 @@ public class PlayCommand implements ICommand {
             if (spotifyType != null) {
                 switch (spotifyType) {
                     case TRACK -> song = playSpotifyTrack(song, channel);
-                    case PLAYLIST -> playSpotifyPlaylist(song, shuffle);
-                    case ALBUM -> playSpotifyAlbum(song, shuffle);
-                    case ARTIST -> playSpotifyArtist(song, shuffle);
+                    case PLAYLIST -> song = playSpotifyPlaylist(song, shuffle);
+                    case ALBUM -> song = playSpotifyAlbum(song, shuffle);
+                    case ARTIST -> song = playSpotifyArtist(song, shuffle);
                 }
             }
         } else if (requestType == RequestType.SEARCH) {
-            searchPlay(song, channel);
+            song = searchPlay(song, channel);
         }
-        try {
-            ControlsManager.getINSTANCE().deleteMessage(channel, guild);
-        } catch (NullPointerException ignored) {
-        }
-        ControlsManager.getINSTANCE().sendMessage(channel, guild);
+        if (song != null) ControlsManager.getINSTANCE().sendMessage(channel, guild);
 
         return song;
     }
 
-    private void playSpotifyArtist(String arg0, Boolean randomizeOrder) {
+    private String playSpotifyArtist(String arg0, Boolean randomizeOrder) {
 
         logger.info(arg0);
         logger.error("NOT YET IMPLEMENTED!");
+        return null;
     }
 
-    private void playSpotifyAlbum(String arg0, Boolean randomizeOrder) {
+    private String playSpotifyAlbum(String arg0, Boolean randomizeOrder) {
 
         logger.error("NOT YET IMPLEMENTED!");
+        return null;
     }
 
-    private void playSpotifyPlaylist(String arg0, Boolean randomizeOrder) {
+    private String playSpotifyPlaylist(String arg0, Boolean randomizeOrder) {
 
         logger.error("NOT YET IMPLEMENTED!");
+        return null;
     }
 
     private String playSpotifyTrack(String link, TextChannel channel) throws IOException, ParseException, SpotifyWebApiException {
@@ -118,7 +118,7 @@ public class PlayCommand implements ICommand {
         return null;
     }
 
-    private void playYoutubePlaylist(String link, Boolean randomizeOrder, TextChannel channel) throws IOException {
+    private String playYoutubePlaylist(String link, Boolean randomizeOrder, TextChannel channel) throws IOException {
 
         List<String> ids = YouTube.getPlaylistItemsByLink(link);
         if (randomizeOrder) Collections.shuffle(ids);
@@ -126,10 +126,12 @@ public class PlayCommand implements ICommand {
             PlayerManager.getINSTANCE().loadAndPlay(channel, channel.getGuild(), "https://youtu.be/" + id);
         }
         channel.sendMessage("Added " + ids.size() + " songs to the queue.").queue();
+        return link;
     }
 
-    private void playYoutubeTrack(String url, TextChannel channel, Guild guild) {
+    private String playYoutubeTrack(String url, TextChannel channel, Guild guild) {
         PlayerManager.getINSTANCE().loadAndPlay(channel, guild, url);
+        return url;
     }
 
     private YoutubeType getYouTubeType(String link) {
@@ -172,7 +174,7 @@ public class PlayCommand implements ICommand {
     @Override
     public CommandUpdateAction.CommandData getCommand() {
         return new CommandUpdateAction.CommandData(getName(), getDescription())
-                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.STRING, "link", "The song you want to play. Can be a link or search query.")
+                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.STRING, "query", "The song you want to play. Can be a link or search query.")
                         .setRequired(true))
                 .addOption(new CommandUpdateAction.OptionData(Command.OptionType.BOOLEAN, "shuffle", "Do you want the playlist to be shuffled?")
                         .setRequired(false));
@@ -181,21 +183,23 @@ public class PlayCommand implements ICommand {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void handle(SlashCommandEvent event) {
+        var hook = event.getHook();
         if (!join(event.getGuild(), event.getUser())) {
-            event.reply("Please join a channel, so I can play your request.").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+            hook.sendMessage("Please join a channel, so I can play your request.").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
             return;
         }
         try {
             if (event.getOption("shuffle") != null) {
                 if (event.getOption("shuffle").getAsBoolean()) {
-                    event.reply(playSong(event.getOption("link").getAsString(), true, event.getTextChannel(), event.getGuild())).delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+                    hook.sendMessage(playSong(event.getOption("query").getAsString(), true, event.getTextChannel(), event.getGuild())).delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
                 }
             } else {
-                event.reply(playSong(event.getOption("link").getAsString(), false, event.getTextChannel(), event.getGuild())).delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+                var msg = playSong(event.getOption("query").getAsString(), false, event.getTextChannel(), event.getGuild());
+                hook.sendMessage(Objects.requireNonNullElse(msg, "Something went wrong!")).delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
             }
         } catch (ParseException | SpotifyWebApiException | IOException e) {
             e.printStackTrace();
-            event.reply("Something went wrong :(").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+            hook.sendMessage("Something went wrong :(").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
         }
     }
 

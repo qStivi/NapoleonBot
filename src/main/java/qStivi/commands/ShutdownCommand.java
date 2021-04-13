@@ -20,14 +20,7 @@ public class ShutdownCommand implements ICommand {
 
     @Override
     public void handle(SlashCommandEvent event) {
-
-        event.reply("Shutting down...").setEphemeral(true).queue();
-
         logger.info("Shutting down...");
-
-        for (int i = 0; i < 1000; i++) {
-            Thread.onSpinWait();
-        }
 
         event.getJDA().shutdownNow();
 

@@ -23,16 +23,18 @@ public class CleanCommand implements ICommand {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void handle(SlashCommandEvent event) {
+        var hook = event.getHook();
         if (event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
 
             List<Message> messages = new ArrayList<>();
 
-            event.getChannel().getIterableHistory().stream().limit(50).forEach(messages::add);
-
-            event.reply("Cleaning...").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+            event.getChannel().getIterableHistory().stream().limit(1000).forEach(messages::add);
 
             event.getChannel().purgeMessages(messages);
 
+            hook.sendMessage("Cleaning...").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
+        } else {
+            hook.sendMessage("You don't have the permissions to do that.").setEphemeral(true).queue();
         }
     }
 
@@ -45,6 +47,6 @@ public class CleanCommand implements ICommand {
     @Override
     public @Nonnull
     String getDescription() {
-        return "Deletes last 50 messages.";
+        return "Deletes last 1000 messages. This takes quite some time.";
     }
 }

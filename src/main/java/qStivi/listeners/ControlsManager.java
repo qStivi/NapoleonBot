@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 import qStivi.audioManagers.PlayerManager;
 
 import java.awt.*;
@@ -17,9 +18,16 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class ControlsManager extends ListenerAdapter {
+
+
+    private static final Logger logger = getLogger(ControlsManager.class);
+
     private static ControlsManager INSTANCE;
     private final EmbedBuilder embed = new EmbedBuilder();
+    TimerTask task;
     private Timer timer = new Timer();
     private String id;
     private String messageId;
@@ -27,7 +35,6 @@ public class ControlsManager extends ListenerAdapter {
     private long timeRemaining;
     private String name;
     private String interpret;
-    TimerTask task;
 
     public static ControlsManager getINSTANCE() {
 
@@ -39,6 +46,7 @@ public class ControlsManager extends ListenerAdapter {
     }
 
     public void sendMessage(TextChannel channel, Guild guild) {
+        deleteMessage(channel, guild);
         //noinspection StatementWithEmptyBody
         while (PlayerManager.getINSTANCE().getMusicManager(guild).audioPlayer.getPlayingTrack() == null) {
         } // wait for track to start playing
@@ -61,14 +69,13 @@ public class ControlsManager extends ListenerAdapter {
     }
 
     public void deleteMessage(TextChannel channel, Guild guild) {
-        this.task.cancel();
-        this.timer.cancel();
-        this.timer = new Timer();
-        this.task = task(channel, guild);
         try {
+            this.task.cancel();
+            this.timer.cancel();
+            this.timer = new Timer();
+            this.task = task(channel, guild);
             channel.deleteMessageById(this.messageId).queue();
-        } catch (IllegalArgumentException e){
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         this.messageId = null;
     }

@@ -1,6 +1,7 @@
 package qStivi.commands;
 
 import net.dv8tion.jda.api.commands.CommandHook;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
 import qStivi.ICommand;
@@ -18,8 +19,7 @@ public class TestCommand implements ICommand {
 
     @Override
     public void handle(SlashCommandEvent event) {
-
-        event.reply("k").delay(Duration.ofSeconds(60)).flatMap(CommandHook::deleteOriginal).queue();
+        event.getHook().sendMessage("k").delay(Duration.ofSeconds(3)).flatMap(Message::delete).queue();
     }
 
     @Override
