@@ -33,14 +33,14 @@ public class RollCommand implements ICommand {
         var hook = event.getHook();
         var rollInput = event.getOption("query").getAsString();
         if (rollInput.equals("stats")) {
-            hook.sendMessage(statsRoll()).delay(Duration.ofDays(1)).flatMap(Message::delete).queue();
+            hook.sendMessage(statsRoll()).queue();
         } else {
             var result = normalRoll(rollInput);
             if (result == null) {
                 hook.sendMessage("This is not a valid roll!\nExample: `6d8`").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
                 return;
             }
-            hook.sendMessage(result).delay(Duration.ofDays(1)).flatMap(Message::delete).queue();
+            hook.sendMessage(result).queue();
         }
     }
 

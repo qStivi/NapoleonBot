@@ -27,6 +27,7 @@ public class Listener extends ListenerAdapter {
         event.getJDA().getTextChannelById(channelId).sendMessage("Booting... Ready when message disappears.").delay(Duration.ofSeconds(90)).flatMap(Message::delete).queue();
     }
 
+
     @SuppressWarnings("ConstantConditions")
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {

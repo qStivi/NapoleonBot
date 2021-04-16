@@ -20,6 +20,10 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
+    // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.34.0'
+
+
     // https://github.com/mattbdean/JRAW
     implementation "net.dean.jraw:JRAW:1.1.0"
 

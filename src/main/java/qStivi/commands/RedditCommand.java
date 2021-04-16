@@ -58,23 +58,23 @@ public class RedditCommand implements ICommand {
         if (link.contains("i.redd.it") || link.contains("v.redd.it") || link.contains("youtu.be") || link.contains("youtube.com") || link.contains("imgur.com") || link.contains("giphy.com") || link.contains("gfycat.com")) {
 
             if (link.contains("i.redd.it")) {
-                hook.sendMessage(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
-                event.getTextChannel().sendMessage(url).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
+                hook.sendMessage(sendFancyTitle(submissionSubject)).queue();
+                event.getTextChannel().sendMessage(url).queue();
             } else if (link.contains("v.redd.it")) {
                 if (submissionSubject.getEmbeddedMedia() != null) {
                     if (submissionSubject.getEmbeddedMedia().getRedditVideo() != null) {
-                        hook.sendMessage(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
-                        event.getTextChannel().sendMessage(submissionSubject.getEmbeddedMedia().getRedditVideo().getFallbackUrl()).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
+                        hook.sendMessage(sendFancyTitle(submissionSubject)).queue();
+                        event.getTextChannel().sendMessage(submissionSubject.getEmbeddedMedia().getRedditVideo().getFallbackUrl()).queue();
                     }
-                } else hook.sendMessage(permalink(randomSubmission)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue(); // This is usually a cross post
+                } else hook.sendMessage(permalink(randomSubmission)).queue(); // This is usually a cross post
 
             } else {
-                hook.sendMessage(sendFancyTitle(submissionSubject)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
-                event.getTextChannel().sendMessage(url).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
+                hook.sendMessage(sendFancyTitle(submissionSubject)).queue();
+                event.getTextChannel().sendMessage(url).queue();
             }
 
         } else {
-            hook.sendMessage(permalink(randomSubmission)).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
+            hook.sendMessage(permalink(randomSubmission)).queue();
         }
     }
 
@@ -112,6 +112,6 @@ public class RedditCommand implements ICommand {
     @NotNull
     @Override
     public String getDescription() {
-        return "Gets random post from given subreddit.";
+        return "Sends random post from given subreddit.";
     }
 }

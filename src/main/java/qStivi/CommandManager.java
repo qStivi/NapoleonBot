@@ -30,6 +30,8 @@ public class CommandManager extends ListenerAdapter {
         commandList.add(new RedditCommand());
         commandList.add(new PlayCommand());
         commandList.add(new ShutdownCommand());
+        commandList.add(new StatsCommand());
+        commandList.add(new Top10());
 
 
         List<CommandUpdateAction.CommandData> commandDataList = new ArrayList<>();
