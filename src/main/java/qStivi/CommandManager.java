@@ -32,6 +32,7 @@ public class CommandManager extends ListenerAdapter {
         commandList.add(new ShutdownCommand());
         commandList.add(new StatsCommand());
         commandList.add(new Top10());
+        commandList.add(new WorkCommand());
 
 
         List<CommandUpdateAction.CommandData> commandDataList = new ArrayList<>();

@@ -29,9 +29,9 @@ public class StatsCommand implements ICommand {
 
         var money = db.getMoney(id);
         var xp = db.getXp(id);
-        var lvl = (int) Math.floor(xp/800);
+        var lvl = (int) Math.floor(xp / 800);
 
-        hook.sendMessage("Level: " + lvl + "\nMoney: " + money + "\nXP: " + xp).delay(Duration.ofDays(3)).flatMap(Message::delete).queue();
+        hook.sendMessage("Level: " + lvl + "\nMoney: " + money + "\nXP: " + xp).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
     }
 
     @NotNull

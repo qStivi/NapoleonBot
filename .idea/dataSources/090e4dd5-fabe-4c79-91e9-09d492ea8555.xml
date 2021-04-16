@@ -1357,13 +1357,20 @@
     <column id="497" parent="171" name="money">
       <Position>2</Position>
       <DataType>integer|0s</DataType>
-      <NotNull>1</NotNull>
+      <DefaultExpression>100</DefaultExpression>
     </column>
     <column id="498" parent="171" name="xp">
       <Position>3</Position>
       <DataType>integer|0s</DataType>
+      <DefaultExpression>0</DefaultExpression>
     </column>
-    <key id="499" parent="171">
+    <column id="499" parent="171" name="last_worked">
+      <Position>4</Position>
+      <DataType>integer|0s</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <key id="500" parent="171">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>

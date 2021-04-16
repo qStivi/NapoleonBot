@@ -2,7 +2,9 @@ package qStivi.db;
 
 import org.slf4j.Logger;
 
+import java.lang.constant.Constable;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,11 +51,7 @@ public class DB {
         String url = "jdbc:sqlite:bot.db";
 
         // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS " + tbl + " (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	money integer default 100,\n"
-                + "	xp integer default 0\n"
-                + ");";
+        String sql = "CREATE TABLE IF NOT EXISTS " + tbl + " (id integer PRIMARY KEY,money integer NOT NULL default 100,xp integer default 0,last_worked int not null);";
 
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
@@ -67,7 +65,7 @@ public class DB {
     /**
      * Insert a new row into the warehouses table
      *
-     * @param id
+     * @param id user id
      */
     public void insert(long id) {
         String sql = "INSERT INTO users(id) VALUES(?)";
@@ -84,7 +82,7 @@ public class DB {
     /**
      * Update data of a warehouse specified by the id
      *
-     * @param id
+     * @param id    user id
      * @param money money of the warehouse
      * @param xp    xp of the warehouse
      */
@@ -110,7 +108,7 @@ public class DB {
     /**
      * Delete a warehouse specified by the id
      *
-     * @param id
+     * @param id user id
      */
     public void delete(int id) {
         String sql = "DELETE FROM users WHERE id = ?";
@@ -148,7 +146,7 @@ public class DB {
     /**
      * Get the warehouse whose capacity greater than a specified capacity
      *
-     * @param xp
+     * @param xp xp to compare to
      */
     public void getXpGreaterThan(double xp) {
         String sql = "SELECT id, money, xp "
@@ -230,8 +228,28 @@ public class DB {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return null;
+    }
 
+    public Long getLastWorked(long id) {
+        String sql = """
+                select last_worked
+                                 from users
+                                 where id = ?""";
 
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, id);
+
+            var rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getLong("last_worked");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -257,7 +275,7 @@ public class DB {
     }
 
     public List<Long> getTop10() {
-        String sql = "select id from users order by money DESC LIMIT 10";
+        String sql = "select id from users order by money DESC, xp desc limit 10";
         List<Long> list = new ArrayList<>();
 
         try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -286,5 +304,21 @@ public class DB {
             e.printStackTrace();
         }
 
+    }
+
+    public void updateLastWorked(long id, long now) {
+        String sql = "UPDATE users SET last_worked = ? WHERE id = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setLong(1, id);
+            pstmt.setLong(3, now);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

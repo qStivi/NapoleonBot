@@ -1,6 +1,7 @@
 package qStivi.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import qStivi.ICommand;
 import qStivi.db.DB;
 
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Top10 implements ICommand {
@@ -31,6 +33,7 @@ public class Top10 implements ICommand {
             Long id = list.get(i);
             var money = db.getMoney(id);
             var xp = db.getXp(id);
+            var lvl = (int) Math.floor(xp/800);
 
             AtomicReference<String> name = new AtomicReference<>();
 
@@ -41,9 +44,9 @@ public class Top10 implements ICommand {
             while (name.get() == null) {
                 Thread.onSpinWait();
             }
-            embed.addField("", "#" + i + " [" + name.get() +"](https://youtu.be/dQw4w9WgXcQ) "+ money + " :gem: :white_small_square: " + xp + "xp", false);
+            embed.addField("", "#" + i + " [" + name.get() +"](https://youtu.be/dQw4w9WgXcQ) "+ money + " :gem: :white_small_square: " + xp + "xp LVL: " + lvl, false);
         }
-        hook.sendMessage(embed.build()).queue();
+        hook.sendMessage(embed.build()).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
     }
 
     @NotNull
