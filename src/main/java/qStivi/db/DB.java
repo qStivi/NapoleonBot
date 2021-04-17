@@ -51,7 +51,15 @@ public class DB {
         String url = "jdbc:sqlite:bot.db";
 
         // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS " + tbl + " (id integer PRIMARY KEY,money integer NOT NULL default 100,xp integer default 0,last_worked int not null);";
+        String sql = "CREATE TABLE IF NOT EXISTS " + tbl + " (" +
+                "id integer PRIMARY KEY," +
+                "money integer default 100," +
+                "xp integer default 0," +
+                "last_worked int default 0," +
+                "last_chat_message int default 0," +
+                "last_command int default 0," +
+                "last_reaction int default 0" +
+                ")";
 
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
@@ -253,6 +261,50 @@ public class DB {
         return null;
     }
 
+    public Long getLastChatMessage(long id) {
+        String sql = """
+                select last_chat_message
+                                 from users
+                                 where id = ?""";
+
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, id);
+
+            var rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getLong("last_chat_message");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Long getLastReaction(long id) {
+        String sql = """
+                select last_reaction
+                                 from users
+                                 where id = ?""";
+
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, id);
+
+            var rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getLong("last_reaction");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public Integer getXp(long id) {
         String sql = "select xp from users where id = ?";
 
@@ -313,8 +365,56 @@ public class DB {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            pstmt.setLong(1, id);
-            pstmt.setLong(3, now);
+            pstmt.setLong(1, now);
+            pstmt.setLong(2, id);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateMoney(long id, long now) {
+        String sql = "UPDATE users SET money = ? WHERE id = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setLong(1, now);
+            pstmt.setLong(2, id);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateLastChatMessage(long id, long now) {
+        String sql = "UPDATE users SET last_chat_message = ? WHERE id = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setLong(1, now);
+            pstmt.setLong(2, id);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateLastReaction(long id, long now) {
+        String sql = "UPDATE users SET last_reaction = ? WHERE id = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setLong(1, now);
+            pstmt.setLong(2, id);
             // update
             pstmt.executeUpdate();
         } catch (SQLException e) {

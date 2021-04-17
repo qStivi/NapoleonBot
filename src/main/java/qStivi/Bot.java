@@ -3,7 +3,7 @@ package qStivi;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import qStivi.commands.BlackjackCommand;
 import qStivi.db.DB;
 import qStivi.listeners.ControlsManager;
 import qStivi.listeners.Listener;
@@ -13,9 +13,8 @@ import javax.security.auth.login.LoginException;
 import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ThreadLocalRandom;
 
-public class Bot extends ListenerAdapter {
+public class Bot {
     private static final Timer reminder = new Timer();
 
     public static void main(String[] args) throws LoginException {
@@ -27,6 +26,7 @@ public class Bot extends ListenerAdapter {
                 .addEventListeners(new ControlsManager())
                 .addEventListeners(new Listener())
                 .addEventListeners(new UserManager())
+                .addEventListeners(new BlackjackCommand())
                 .setActivity(Activity.playing("New commands YAY!"))
                 .build();
 

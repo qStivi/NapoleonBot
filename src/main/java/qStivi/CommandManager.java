@@ -31,8 +31,9 @@ public class CommandManager extends ListenerAdapter {
         commandList.add(new PlayCommand());
         commandList.add(new ShutdownCommand());
         commandList.add(new StatsCommand());
-        commandList.add(new Top10());
+        commandList.add(new Top10Command());
         commandList.add(new WorkCommand());
+        commandList.add(new BlackjackCommand());
 
 
         List<CommandUpdateAction.CommandData> commandDataList = new ArrayList<>();

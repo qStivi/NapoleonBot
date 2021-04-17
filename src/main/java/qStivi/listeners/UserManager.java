@@ -9,10 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import qStivi.db.DB;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -20,7 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class UserManager extends ListenerAdapter {
-    private static final Logger logger = getLogger(DB.class);
+    private static final Logger logger = getLogger(UserManager.class);
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     DB db = new DB();
     Timer timer = new Timer();
@@ -55,8 +52,18 @@ public class UserManager extends ListenerAdapter {
             db.insert(id);
         }
 
-        var xp = db.getXp(id);
-        db.setXp(id, xp + 10);
+
+        var seconds = db.getLastChatMessage(id);
+        var millis = seconds * 1000;
+        var lastChatMessage = new Date(millis);
+        var now = new Date();
+        var diff = (now.getTime() - lastChatMessage.getTime()) / 1000;
+
+        if (diff > 5) {
+            db.updateLastChatMessage(id, now.getTime() / 1000);
+            var xp = db.getXp(id);
+            db.setXp(id, xp + 10);
+        }
     }
 
     @Override
@@ -68,8 +75,18 @@ public class UserManager extends ListenerAdapter {
             db.insert(id);
         }
 
-        var xp = db.getXp(id);
-        db.setXp(id, xp + 5);
+
+        var seconds = db.getLastReaction(id);
+        var millis = seconds * 1000;
+        var lastReaction = new Date(millis);
+        var now = new Date();
+        var diff = (now.getTime() - lastReaction.getTime()) / 1000;
+
+        if (diff > 5) {
+            db.updateLastReaction(id, now.getTime() / 1000);
+            var xp = db.getXp(id);
+            db.setXp(id, xp + 10);
+        }
     }
 
     @Override
