@@ -2,9 +2,7 @@ package qStivi.db;
 
 import org.slf4j.Logger;
 
-import java.lang.constant.Constable;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,13 +43,51 @@ public class DB {
 
     /**
      * Create a new table in the test database
+     *
+     * @param tblName Name of table
+     * @param cols    columns of table in format "type name"
      */
-    public static void createNewTable(String tbl) {
+    public static void createNewTable(String tblName, String... cols) {
+        // SQLite connection string
+        String url = "jdbc:sqlite:bot.db";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("CREATE TABLE IF NOT EXISTS ").append(tblName).append("(id INTEGER PRIMARY KEY");
+
+        for (int i = 0, colsLength = cols.length; i < colsLength; i++) {
+            String col = cols[i];
+            var type = col.split(" ")[0];
+            var name = col.split(" ")[1];
+
+            sb.append(",").append(name).append(" ").append(type);
+            if (type.equalsIgnoreCase("string") || type.equalsIgnoreCase("text")) {
+                sb.append(" ").append("DEFAULT 0");
+            }
+            if (i < colsLength - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append(")");
+
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(sb.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Create a new table in the test database
+     */
+    @Deprecated
+    public static void createNewUsersTable(String tbl) {
         // SQLite connection string
         String url = "jdbc:sqlite:bot.db";
 
         // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS " + tbl + " (" +
+        String sql = "CREATE TABLE IF NOT EXISTS users (" +
                 "id integer PRIMARY KEY," +
                 "money integer default 100," +
                 "xp integer default 0," +
@@ -59,6 +95,40 @@ public class DB {
                 "last_chat_message int default 0," +
                 "last_command int default 0," +
                 "last_reaction int default 0" +
+                "times_played_blackjack int default 0" +
+                "times_xp_from_chat int default 0" +
+                "times_xp_from_voice int default 0" +
+                "times_xp_from_reaction int default 0" +
+                "amount_xp_from_reaction int default 0" +
+                "amount_xp_from_voice int default 0" +
+                "amount_xp_from_chat int default 0" +
+                ")";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Create a new table in the test database
+     */
+    @Deprecated
+    public static void createNewQuotasTable() {
+        // SQLite connection string
+        String url = "jdbc:sqlite:bot.db";
+
+        // SQL statement for creating a new table
+        String sql = "CREATE TABLE IF NOT EXISTS quotas\n" +
+                "(\n" +
+                "    name  text PRIMARY KEY,\n" +
+                "    wins  integer default 0,\n" +
+                "    loses integer default 0,\n" +
+                "    draws integer default 0,\n" +
+                "    plays integer default 0\n" +
                 ")";
 
         try (Connection conn = DriverManager.getConnection(url);
@@ -73,14 +143,94 @@ public class DB {
     /**
      * Insert a new row into the warehouses table
      *
+     * @param table   name of table to insert to
+     * @param colName name of column to insert to
+     * @param value   value to insert to
+     */
+    public void insert(String table, String colName, Object value) {
+        String sql = "INSERT INTO " + table + "(" + colName + ") VALUES(?)";
+
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setObject(1, value);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update data of a warehouse specified by the id
+     *
+     * @param tblName    name of table to update
+     * @param colName    name of column to update
+     * @param whereName  name of column to use as identifier
+     * @param whereValue value of identifier
+     * @param value      new value
+     */
+    public void update(String tblName, String colName, String whereName, Object whereValue, Object value) {
+        String sql = "UPDATE %s SET %s = ? , WHERE %s = ?".formatted(tblName, colName, whereName);
+
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setObject(1, value);
+            pstmt.setObject(2, whereValue);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update data of a warehouse specified by the id
+     *
+     * @param name name of game
+     */
+    public void incrementValue(String tblName, String colName, String whereName, Object whereValue, int value) {
+        String sql = "UPDATE %s SET %s = %s + ? WHERE %s = ?".formatted(tblName, colName, colName, whereName);
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setObject(1, whereValue);
+            pstmt.setString(1, name);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Insert a new row into the warehouses table
+     *
      * @param id user id
      */
-    public void insert(long id) {
+    @Deprecated
+    public void insertOld(long id) {
         String sql = "INSERT INTO users(id) VALUES(?)";
 
         try (Connection conn = this.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setLong(1, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Insert a new row into the warehouses table
+     *
+     * @param name name of game
+     */
+    @Deprecated
+    public void insertGame(String name) {
+        String sql = "INSERT INTO quotas(name) VALUES(?)";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -94,7 +244,8 @@ public class DB {
      * @param money money of the warehouse
      * @param xp    xp of the warehouse
      */
-    public void update(int id, String money, double xp) {
+    @Deprecated
+    public void updateOld(int id, String money, double xp) {
         String sql = "UPDATE users SET money = ? , "
                 + "xp = ? "
                 + "WHERE id = ?";
@@ -106,6 +257,86 @@ public class DB {
             pstmt.setString(1, money);
             pstmt.setDouble(2, xp);
             pstmt.setInt(3, id);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update data of a warehouse specified by the id
+     *
+     * @param name name of game
+     */
+    public void incrementWins(String name) {
+        String sql = "UPDATE quotas SET wins = wins + 1 WHERE name = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, name);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update data of a warehouse specified by the id
+     *
+     * @param name name of game
+     */
+    public void incrementLoses(String name) {
+        String sql = "UPDATE quotas SET loses = loses + 1 WHERE name = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, name);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update data of a warehouse specified by the id
+     *
+     * @param name name of game
+     */
+    public void incrementDraws(String name) {
+        String sql = "UPDATE quotas SET draws = draws + 1 WHERE name = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, name);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update data of a warehouse specified by the id
+     *
+     * @param name name of game
+     */
+    public void incrementPlays(String name) {
+        String sql = "UPDATE quotas SET plays = plays + 1 WHERE name = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, name);
             // update
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -207,6 +438,26 @@ public class DB {
 
             // set the value
             pstmt.setLong(1, id);
+            //
+            ResultSet rs = pstmt.executeQuery();
+
+            // loop through the result set
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean gameExists(String id) {
+        String sql = "select name from quotas where name = ? LIMIT 1";
+
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the value
+            pstmt.setString(1, id);
             //
             ResultSet rs = pstmt.executeQuery();
 

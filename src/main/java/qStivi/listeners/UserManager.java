@@ -1,5 +1,6 @@
 package qStivi.listeners;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import qStivi.db.DB;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -49,7 +51,7 @@ public class UserManager extends ListenerAdapter {
         if (event.getAuthor().isBot() || event.isWebhookMessage()) return;
         var id = Long.parseLong(event.getAuthor().getId());
         if (!db.userExists(id)) {
-            db.insert(id);
+            db.insertOld(id);
         }
 
 
@@ -69,10 +71,16 @@ public class UserManager extends ListenerAdapter {
     @Override
     public void onGuildMessageReactionAdd(@NotNull GuildMessageReactionAddEvent event) {
         if (event.getUser().isBot()) return;
+        AtomicReference<User> isBotMessage = new AtomicReference<>();
+        event.retrieveMessage().queue(message -> {
+            isBotMessage.set(message.getAuthor());
+        });
+        while (isBotMessage.get() == null) Thread.onSpinWait();
+        if (isBotMessage.get().isBot()) return;
 
         var id = Long.parseLong(event.getUser().getId());
         if (!db.userExists(id)) {
-            db.insert(id);
+            db.insertOld(id);
         }
 
 
@@ -95,7 +103,7 @@ public class UserManager extends ListenerAdapter {
 
         var id = Long.parseLong(event.getMember().getUser().getId());
         if (!db.userExists(id)) {
-            db.insert(id);
+            db.insertOld(id);
         }
 
         Task task = new Task(new TimerTask() {

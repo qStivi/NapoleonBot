@@ -14,14 +14,14 @@ public class BlackJack {
     public String id;
     public EmbedBuilder embed = new EmbedBuilder();
     public CommandHook hook;
-    public long stake;
+    public long bet;
     public final List<Card> dealer = new ArrayList<>();
     public final List<Card> player = new ArrayList<>();
     private final List<Card> cards = new ArrayList<>();
     public User user;
     public static List<BlackJack> games = new ArrayList<>();
 
-    public BlackJack(int numberOfDecks, String id, User user, CommandHook hook, long stake) {
+    public BlackJack(int numberOfDecks, String id, User user, CommandHook hook, long bet) {
         for (int i = 0; i < numberOfDecks; i++) {
             cards.add(new Card(Suit.Clubs, 0, Emotes.ACE_OF_CLUBS));
             cards.add(new Card(Suit.Clubs, 2, Emotes.TWO_OF_CLUBS));
@@ -79,7 +79,7 @@ public class BlackJack {
             cards.add(new Card(Suit.Spades, 10, Emotes.QUEEN_OF_SPADES));
             cards.add(new Card(Suit.Spades, 10, Emotes.KING_OF_SPADES));
         }
-        this.stake = stake;
+        this.bet = bet;
         this.hook = hook;
         this.user = user;
         this.id = id;

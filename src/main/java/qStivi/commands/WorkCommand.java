@@ -25,11 +25,11 @@ public class WorkCommand implements ICommand {
     @Override
     public void handle(SlashCommandEvent event) {
         var hook = event.getHook();
-        var id = Long.parseLong(event.getUser().getId());
+        var id = event.getUser().getIdLong();
         var db = new DB();
 
         if (!db.userExists(id)) {
-            db.insert(id);
+            db.insertOld(id);
         }
 
         var seconds = db.getLastWorked(id);

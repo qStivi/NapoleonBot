@@ -46,7 +46,7 @@ public class Top10Command implements ICommand {
             }
             embed.addField("", "#" + i + " [" + name.get() +"](https://youtu.be/dQw4w9WgXcQ) "+ money + " :gem: :white_small_square: " + xp + "xp LVL: " + lvl, false);
         }
-        hook.sendMessage(embed.build()).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
+        hook.sendMessage(embed.build()).delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
     }
 
     @NotNull

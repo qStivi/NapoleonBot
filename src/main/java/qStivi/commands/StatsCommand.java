@@ -25,13 +25,17 @@ public class StatsCommand implements ICommand {
         var db = new DB();
         var user = event.getOption("user");
 
-        long id = user==null?Long.parseLong(event.getUser().getId()):Long.parseLong(user.getAsUser().getId());
+        long id = user==null?event.getUser().getIdLong():user.getAsUser().getIdLong();
+
+        if (!db.userExists(id)) {
+            db.insertOld(id);
+        }
 
         var money = db.getMoney(id);
         var xp = db.getXp(id);
         var lvl = (int) Math.floor(xp / 800);
 
-        hook.sendMessage("Level: " + lvl + "\nMoney: " + money + "\nXP: " + xp).delay(Duration.ofHours(1)).flatMap(Message::delete).queue();
+        hook.sendMessage("Level: " + lvl + "\nMoney: " + money + "\nXP: " + xp).delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
     }
 
     @NotNull
