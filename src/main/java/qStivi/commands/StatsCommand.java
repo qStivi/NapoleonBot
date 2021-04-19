@@ -1,5 +1,6 @@
 package qStivi.commands;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Command;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -23,19 +24,42 @@ public class StatsCommand implements ICommand {
     public void handle(SlashCommandEvent event) {
         var hook = event.getHook();
         var db = new DB();
-        var user = event.getOption("user");
+        var commandUser = event.getOption("user");
 
-        long id = user==null?event.getUser().getIdLong():user.getAsUser().getIdLong();
+        var user = commandUser == null ? event.getMember() : commandUser.getAsMember();
+        var userID = user.getIdLong();
 
-        if (!db.userExists(id)) {
-            db.insertOld(id);
+        if (db.userDoesNotExists(userID)) {
+            db.insert("users", "id", user);
         }
 
-        var money = db.getMoney(id);
-        var xp = db.getXp(id);
-        var lvl = (int) Math.floor(xp / 800);
+        var money = db.selectLong("users", "money", "id", userID);
+        var xp = db.selectLong("users", "xp", "id", userID);
+        var lvl = (long) Math.floor(xp / 800);
+        var userName = user.getEffectiveName();
+        var ranking = db.getRanking();
+        long position = 1337;
+        long blackJackWins = db.selectLong("users", "blackjack_wins", "id", userID);
+        long blackJackLoses = db.selectLong("users", "blackjack_loses", "id", userID);
+        if (blackJackLoses == 0) blackJackLoses = 1;
+        var winLoseRatio = (double) blackJackWins/blackJackLoses;
 
-        hook.sendMessage("Level: " + lvl + "\nMoney: " + money + "\nXP: " + xp).delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
+        for (int i = 0; i < ranking.size(); i++) {
+            if (ranking.get(i) == event.getUser().getIdLong()) {
+                position = i;
+            }
+        }
+
+        var embed = new EmbedBuilder();
+        embed.setColor(user.getColor());
+        embed.setAuthor(userName, "https://youtu.be/dQw4w9WgXcQ", user.getUser().getEffectiveAvatarUrl());
+        if (position != 1337) embed.addField("Rank", "#" + position, false);
+        embed.addField("Level", String.valueOf(lvl), true);
+        embed.addField("Money", money + " :gem:", true);
+        embed.addField("XP", String.valueOf(xp), true);
+        embed.setFooter("BlackJack win/lose ratio: " + winLoseRatio);
+
+        hook.sendMessage(embed.build()).delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
     }
 
     @NotNull

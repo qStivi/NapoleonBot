@@ -3,9 +3,11 @@ package qStivi;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import org.slf4j.Logger;
 import qStivi.commands.BlackjackCommand;
 import qStivi.db.DB;
+import qStivi.listeners.CommandManager;
 import qStivi.listeners.ControlsManager;
 import qStivi.listeners.Listener;
 import qStivi.listeners.UserManager;
@@ -13,7 +15,6 @@ import qStivi.listeners.UserManager;
 import javax.security.auth.login.LoginException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -21,17 +22,31 @@ public class Bot {
     private static final Timer reminder = new Timer();
     private static final Timer activityUpdate = new Timer();
     private static final String ACTIVITY = "Evolving...";
-    private static final Logger logger = getLogger(BlackjackCommand.class);
+    private static final Logger logger = getLogger(Bot.class);
+    private static final Timer timer = new Timer();
+    private static final Timer timer2 = new Timer();
 
-    public static void main(String[] args) throws LoginException, InterruptedException {
+    public static void main(String[] args) throws LoginException {
         logger.info("Booting...");
-//        TimeUnit.MINUTES.sleep(1);
-        new DB();
-        DB.createNewDatabase("bot");
-        DB.createNewUsersTable("users");
-        DB.createNewQuotasTable();
+        var db = new DB();
+        db.createNewDatabase("bot");
+        db.createNewTable("users",
+                "money integer default 1000," +
+                        "xp integer default 0," +
+                        "last_worked integer default 0," +
+                        "last_chat_message integer default 0," +
+                        "last_command integer default 0," +
+                        "last_reaction integer default 0," +
+                        "command_times_blackjack integer default 0," +
+                        "xp_reaction integer default 0," +
+                        "xp_voice integer default 0," +
+                        "xp_chat integer default 0," +
+                        "blackjack_wins integer default 0," +
+                        "blackjack_loses integer default 0," +
+                        "blackjack_draws integer default 0"
+        );
 
-        JDA jda = JDABuilder.createDefault(Config.get("TOKEN"))
+        var jda = JDABuilder.createDefault(Config.get("TOKEN"))
                 .addEventListeners(new ControlsManager())
                 .addEventListeners(new Listener())
                 .addEventListeners(new UserManager())
@@ -39,15 +54,15 @@ public class Bot {
                 .setActivity(getActivity())
                 .build();
 
-        jda.addEventListener(new CommandManager(jda));
+        var cm = new CommandManager(jda);
+        jda.addEventListener(cm);
 
         activityUpdate.schedule(new TimerTask() {
             @Override
             public void run() {
                 jda.getPresence().setActivity(getActivity());
             }
-        },60*1000,60*1000);
-
+        }, 10 * 1000, 10 * 1000);
 
 
         reminder.schedule(new TimerTask() {
@@ -64,6 +79,22 @@ public class Bot {
                 }
             }
         }, 5 * 1000, 1000);
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+
+                if (cm.events.isEmpty()) return;
+                var event = cm.events.poll();
+                for (ICommand command : cm.commandList) {
+                    if (command.getCommand().getName().equals(event.getName())) {
+                        command.handle(event);
+                        logger.info("Event handled.");
+                    }
+                }
+
+            }
+        }, 10*1000, 3*1000);
     }
 
     private static Activity getActivity() {

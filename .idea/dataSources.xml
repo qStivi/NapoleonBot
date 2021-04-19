@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="bot" uuid="b5bede0c-27f4-4d42-bdf2-4d9495dad9a4">
+    <data-source source="LOCAL" name="bot" uuid="e91ed297-0ab2-464c-aeba-18e2853221dd">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Projects\DerBot\bot.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:C:\Projects\NapoleonBot\bot.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
       <libraries>
         <library>

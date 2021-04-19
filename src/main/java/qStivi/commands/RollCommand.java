@@ -40,7 +40,7 @@ public class RollCommand implements ICommand {
                 hook.sendMessage("This is not a valid roll!\nExample: `6d8`").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
                 return;
             }
-            hook.sendMessage(result).queue();
+            hook.sendMessage(result).delay(Duration.ofMinutes(5)).flatMap(Message::delete).queue();
         }
     }
 

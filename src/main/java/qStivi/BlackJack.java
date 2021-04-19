@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.entities.User;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -79,6 +81,7 @@ public class BlackJack {
             cards.add(new Card(Suit.Spades, 10, Emotes.QUEEN_OF_SPADES));
             cards.add(new Card(Suit.Spades, 10, Emotes.KING_OF_SPADES));
         }
+        Collections.shuffle(cards);
         this.bet = bet;
         this.hook = hook;
         this.user = user;
@@ -129,9 +132,9 @@ public class BlackJack {
         if (cards.isEmpty()) {
             return null;
         }
-        var r = ThreadLocalRandom.current().nextInt(cards.size());
+//        var r = ThreadLocalRandom.current().nextInt(cards.size());
 
-        var card = cards.get(r);
+        var card = cards.get(0);
         cards.remove(card);
         return card;
     }

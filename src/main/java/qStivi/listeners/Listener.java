@@ -24,7 +24,7 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         logger.info("Ready!");
-        event.getJDA().getTextChannelById(channelId).sendMessage("Booting... Ready when message disappears.").delay(Duration.ofSeconds(90)).flatMap(Message::delete).queue();
+        event.getJDA().getGuildById("703363806356701295").getTextChannelById(channelId).sendMessage("Booting... Ready when message disappears.").delay(Duration.ofSeconds(10)).flatMap(Message::delete).queue();
     }
 
 

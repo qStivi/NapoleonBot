@@ -4,17 +4,13 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
 import qStivi.ICommand;
 import qStivi.db.DB;
 
 import java.time.Duration;
 import java.util.Date;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 public class WorkCommand implements ICommand {
-    private static final Logger logger = getLogger(DB.class);
 
     @NotNull
     @Override
@@ -28,24 +24,29 @@ public class WorkCommand implements ICommand {
         var id = event.getUser().getIdLong();
         var db = new DB();
 
-        if (!db.userExists(id)) {
-            db.insertOld(id);
+        if (db.userDoesNotExists(id)) {
+            db.insert("users", "id", id);
         }
 
-        var seconds = db.getLastWorked(id);
+        var seconds = db.selectLong("users", "last_worked", "id", id);
+        seconds = seconds == null ? 0 : seconds;
         var millis = seconds * 1000;
         var lastWorked = new Date(millis);
         var now = new Date();
         var diff = (now.getTime() - lastWorked.getTime()) / 1000;
+        var xp = db.selectLong("users", "xp", "id", id);
+        xp = xp == null ? 0 : xp;
+        var lvl = (long) Math.floor(xp / (double) 800);
+        long lone = 1000 + (lvl * 10);
 
-        if (diff > 3600){
-            db.updateMoney(id, db.getMoney(id) + 100);
-            hook.sendMessage("You earned 100 gems").delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
-        }else {
-            hook.sendMessage("You need to wait " + Math.subtractExact(3600L, diff) + " seconds before you can work again").delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
+        if (diff > 1200) {
+            db.increment("users", "money", "id", id, lone);
+            hook.sendMessage("You earned " + lone + " gems").delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
+            db.update("users", "last_worked", "id", id, now.getTime() / 1000);
+        } else {
+            hook.sendMessage("You need to wait " + Math.subtractExact(1200L, diff) + " seconds before you can work again").delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
         }
 
-        db.updateLastWorked(id, now.getTime() / 1000);
     }
 
     @NotNull

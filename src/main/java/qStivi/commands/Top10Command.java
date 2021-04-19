@@ -28,12 +28,14 @@ public class Top10Command implements ICommand {
         var db = new DB();
         var embed = new EmbedBuilder();
 
-        var list = db.getTop10();
-        for (int i = 0; i < list.size(); i++) {
+        var list = db.getRanking();
+        var size = Math.min(list.size(), 10);
+        for (int i = 0; i < size; i++) {
             Long id = list.get(i);
-            var money = db.getMoney(id);
-            var xp = db.getXp(id);
-            var lvl = (int) Math.floor(xp/800);
+            var money = db.selectLong("users", "money", "id", id);
+            var xp = db.selectLong("users", "xp", "id", id);
+            xp = xp==null?0:xp;
+            var lvl = (int) Math.floor((double) xp / 800);
 
             AtomicReference<String> name = new AtomicReference<>();
 
@@ -44,8 +46,18 @@ public class Top10Command implements ICommand {
             while (name.get() == null) {
                 Thread.onSpinWait();
             }
-            embed.addField("", "#" + i + " [" + name.get() +"](https://youtu.be/dQw4w9WgXcQ) "+ money + " :gem: :white_small_square: " + xp + "xp LVL: " + lvl, false);
+            embed.addField("", "#" + i + " [" + name.get() + "](https://youtu.be/dQw4w9WgXcQ) " + money + " :gem: :white_small_square: " + xp + "xp LVL: " + lvl, false);
         }
+        var userIDs = db.getRanking();
+        double winLoseRatio = 0;
+        for (Long id : userIDs) {
+            var wins = db.selectLong("users", "blackjack_wins", "id", id);
+            var loses = db.selectLong("users", "blackjack_loses", "id", id);
+            wins=wins==null?0:wins;
+            loses=loses==null?0:loses;
+            winLoseRatio = (double) wins / loses;
+        }
+        embed.setFooter("Average BlackJack win/lose ratio: " + winLoseRatio);
         hook.sendMessage(embed.build()).delay(Duration.ofMinutes(1)).flatMap(Message::delete).queue();
     }
 

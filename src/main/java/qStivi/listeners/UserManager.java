@@ -50,21 +50,22 @@ public class UserManager extends ListenerAdapter {
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
         if (event.getAuthor().isBot() || event.isWebhookMessage()) return;
         var id = Long.parseLong(event.getAuthor().getId());
-        if (!db.userExists(id)) {
-            db.insertOld(id);
+        if (db.userDoesNotExists(id)) {
+            db.insert("users", "id", id);
         }
 
 
-        var seconds = db.getLastChatMessage(id);
+        var seconds = db.selectLong("users", "last_chat_message", "id", id);
+        seconds = seconds==null?0:seconds;
         var millis = seconds * 1000;
         var lastChatMessage = new Date(millis);
         var now = new Date();
         var diff = (now.getTime() - lastChatMessage.getTime()) / 1000;
 
-        if (diff > 5) {
-            db.updateLastChatMessage(id, now.getTime() / 1000);
-            var xp = db.getXp(id);
-            db.setXp(id, xp + 10);
+        if (diff > 8) {
+            db.update("users", "last_chat_message", "id", id, now.getTime() / 1000);
+            db.increment("users", "xp", "id", id, 1);
+            db.increment("users", "xp_chat", "id", id, 1);
         }
     }
 
@@ -79,21 +80,22 @@ public class UserManager extends ListenerAdapter {
         if (isBotMessage.get().isBot()) return;
 
         var id = Long.parseLong(event.getUser().getId());
-        if (!db.userExists(id)) {
-            db.insertOld(id);
+        if (db.userDoesNotExists(id)) {
+            db.insert("users", "id", id);
         }
 
 
-        var seconds = db.getLastReaction(id);
+        var seconds = db.selectLong("users", "last_reaction", "id", id);
+        seconds = seconds==null?0:seconds;
         var millis = seconds * 1000;
         var lastReaction = new Date(millis);
         var now = new Date();
         var diff = (now.getTime() - lastReaction.getTime()) / 1000;
 
-        if (diff > 5) {
-            db.updateLastReaction(id, now.getTime() / 1000);
-            var xp = db.getXp(id);
-            db.setXp(id, xp + 10);
+        if (diff > 10) {
+            db.update("users", "last_reaction", "id", id, now.getTime() / 1000);
+            db.increment("users", "xp", "id", id, 5);
+            db.increment("users", "xp_reaction", "id", id, 5);
         }
     }
 
@@ -102,15 +104,15 @@ public class UserManager extends ListenerAdapter {
         if (event.getMember().getUser().isBot()) return;
 
         var id = Long.parseLong(event.getMember().getUser().getId());
-        if (!db.userExists(id)) {
-            db.insertOld(id);
+        if (db.userDoesNotExists(id)) {
+            db.insert("users", "id", id);
         }
 
         Task task = new Task(new TimerTask() {
             @Override
             public void run() {
-                var xp = db.getXp(id);
-                db.setXp(id, xp + 1);
+                db.increment("users", "xp", "id", id, 5);
+                db.increment("users", "xp_voice", "id", id, 5);
             }
         }, id);
 
