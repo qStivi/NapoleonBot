@@ -1,10 +1,8 @@
 package qStivi.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Command;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import qStivi.ICommand;
 import qStivi.db.DB;
@@ -12,21 +10,14 @@ import qStivi.db.DB;
 import java.time.Duration;
 
 public class StatsCommand implements ICommand {
-    @NotNull
-    @Override
-    public CommandUpdateAction.CommandData getCommand() {
-        return new CommandUpdateAction.CommandData(getName(), getDescription())
-                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.USER, "user", "@username")
-                        .setRequired(false));
-    }
 
     @Override
-    public void handle(SlashCommandEvent event) {
-        var hook = event.getHook();
+    public void handle(GuildMessageReceivedEvent event, String[] args) {
+        var hook = event.getChannel();
         var db = new DB();
-        var commandUser = event.getOption("user");
+        var commandUser = event.getMessage().getMentionedMembers().size()>0?event.getMessage().getMentionedMembers().get(0):null;
 
-        var user = commandUser == null ? event.getMember() : commandUser.getAsMember();
+        var user = commandUser == null ? event.getMember() : commandUser;
         var userID = user.getIdLong();
 
         if (db.userDoesNotExists(userID)) {
@@ -42,10 +33,10 @@ public class StatsCommand implements ICommand {
         long blackJackWins = db.selectLong("users", "blackjack_wins", "id", userID);
         long blackJackLoses = db.selectLong("users", "blackjack_loses", "id", userID);
         if (blackJackLoses == 0) blackJackLoses = 1;
-        var winLoseRatio = (double) blackJackWins/blackJackLoses;
+        var winLoseRatio = (double) blackJackWins / blackJackLoses;
 
         for (int i = 0; i < ranking.size(); i++) {
-            if (ranking.get(i) == event.getUser().getIdLong()) {
+            if (ranking.get(i) == event.getAuthor().getIdLong()) {
                 position = i;
             }
         }

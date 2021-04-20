@@ -1,13 +1,9 @@
 package qStivi.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.commands.CommandHook;
-import net.dv8tion.jda.api.entities.Command;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import qStivi.ICommand;
 
 import javax.annotation.Nonnull;
@@ -19,19 +15,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class RollCommand implements ICommand {
 
-    @Override
-    @Nonnull
-    public CommandUpdateAction.@NotNull CommandData getCommand() {
-        return new CommandUpdateAction.CommandData(getName(), getDescription())
-                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.STRING, "query", "A roll query. Something like `stats` or `3d6`.")
-                        .setRequired(true));
-    }
-
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void handle(SlashCommandEvent event) {
-        var hook = event.getHook();
-        var rollInput = event.getOption("query").getAsString();
+    public void handle(GuildMessageReceivedEvent event, String[] args) {
+        var hook = event.getChannel();
+        var rollInput = args[1];
         if (rollInput.equals("stats")) {
             hook.sendMessage(statsRoll()).queue();
         } else {

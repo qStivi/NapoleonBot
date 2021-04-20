@@ -1,11 +1,9 @@
 package qStivi.commands;
 
-import net.dv8tion.jda.api.commands.CommandHook;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import qStivi.ICommand;
 
@@ -30,16 +28,10 @@ public class JoinCommand implements ICommand {
         return successful.get();
     }
 
-    @NotNull
-    @Override
-    public CommandUpdateAction.CommandData getCommand() {
-        return new CommandUpdateAction.CommandData(getName(), getDescription());
-    }
-
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void handle(SlashCommandEvent event) {
-        var hook = event.getHook();
+    public void handle(GuildMessageReceivedEvent event, String[] args) {
+        var hook = event.getChannel();
 
         Guild guild = event.getGuild();
         User author = event.getMember().getUser();

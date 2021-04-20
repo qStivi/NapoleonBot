@@ -3,8 +3,7 @@ package qStivi.commands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import qStivi.ICommand;
 import qStivi.db.DB;
@@ -14,17 +13,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Top10Command implements ICommand {
 
-    @NotNull
     @Override
-    public CommandUpdateAction.CommandData getCommand() {
-        return new CommandUpdateAction.CommandData(getName(), getDescription());
-    }
-
-    @Override
-    public void handle(SlashCommandEvent event) {
+    public void handle(GuildMessageReceivedEvent event, String[] args) {
         //TODO highlight own name in list
         //TODO xp as tiebreaker
-        var hook = event.getHook();
+        var hook = event.getChannel();
         var db = new DB();
         var embed = new EmbedBuilder();
 
@@ -34,7 +27,7 @@ public class Top10Command implements ICommand {
             Long id = list.get(i);
             var money = db.selectLong("users", "money", "id", id);
             var xp = db.selectLong("users", "xp", "id", id);
-            xp = xp==null?0:xp;
+            xp = xp == null ? 0 : xp;
             var lvl = (int) Math.floor((double) xp / 800);
 
             AtomicReference<String> name = new AtomicReference<>();
@@ -53,8 +46,8 @@ public class Top10Command implements ICommand {
         for (Long id : userIDs) {
             var wins = db.selectLong("users", "blackjack_wins", "id", id);
             var loses = db.selectLong("users", "blackjack_loses", "id", id);
-            wins=wins==null?0:wins;
-            loses=loses==null?0:loses;
+            wins = wins == null ? 0 : wins;
+            loses = loses == null ? 0 : loses;
             winLoseRatio = (double) wins / loses;
         }
         embed.setFooter("Average BlackJack win/lose ratio: " + winLoseRatio);

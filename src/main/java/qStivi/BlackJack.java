@@ -1,29 +1,27 @@
 package qStivi;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.commands.CommandHook;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class BlackJack {
-    public String id;
-    public EmbedBuilder embed = new EmbedBuilder();
-    public CommandHook hook;
-    public long bet;
+    public static List<BlackJack> games = new ArrayList<>();
     public final List<Card> dealer = new ArrayList<>();
     public final List<Card> player = new ArrayList<>();
     private final List<Card> cards = new ArrayList<>();
+    public String id;
+    public EmbedBuilder embed = new EmbedBuilder();
+    public TextChannel hook;
+    public long bet;
     public User user;
-    public static List<BlackJack> games = new ArrayList<>();
 
-    public BlackJack(int numberOfDecks, String id, User user, CommandHook hook, long bet) {
+    public BlackJack(int numberOfDecks, String id, User user, TextChannel hook, long bet) {
         for (int i = 0; i < numberOfDecks; i++) {
             cards.add(new Card(Suit.Clubs, 0, Emotes.ACE_OF_CLUBS));
             cards.add(new Card(Suit.Clubs, 2, Emotes.TWO_OF_CLUBS));
@@ -100,7 +98,7 @@ public class BlackJack {
 
     public int stand() {
 
-        while (count(dealer) <= 17){
+        while (count(dealer) <= 17) {
             dealer.add(draw());
         }
 

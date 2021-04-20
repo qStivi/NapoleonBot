@@ -9,12 +9,8 @@ import net.dean.jraw.oauth.Credentials;
 import net.dean.jraw.oauth.OAuthHelper;
 import net.dean.jraw.tree.RootCommentNode;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.commands.CommandHook;
-import net.dv8tion.jda.api.entities.Command;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import qStivi.Config;
@@ -22,7 +18,6 @@ import qStivi.ICommand;
 
 import javax.annotation.CheckReturnValue;
 import java.text.Normalizer;
-import java.time.Duration;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -37,12 +32,12 @@ public class RedditCommand implements ICommand {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void handle(SlashCommandEvent event) {
-        var hook = event.getHook();
+    public void handle(GuildMessageReceivedEvent event, String[] args) {
+        var hook = event.getChannel();
 
         String url;
 
-        var subreddit = event.getOption("subreddit").getAsString();
+        var subreddit = args[1];
         subreddit = Normalizer.normalize(subreddit, Normalizer.Form.NFKD);
         subreddit = subreddit.replaceAll("[^a-z0-9A-Z -]", ""); // Remove all non valid chars
         subreddit = subreddit.replaceAll(" {2}", " ").trim(); // convert multiple spaces into one space
@@ -59,18 +54,18 @@ public class RedditCommand implements ICommand {
 
             if (link.contains("i.redd.it")) {
                 hook.sendMessage(sendFancyTitle(submissionSubject)).queue();
-                event.getTextChannel().sendMessage(url).queue();
+                event.getChannel().sendMessage(url).queue();
             } else if (link.contains("v.redd.it")) {
                 if (submissionSubject.getEmbeddedMedia() != null) {
                     if (submissionSubject.getEmbeddedMedia().getRedditVideo() != null) {
                         hook.sendMessage(sendFancyTitle(submissionSubject)).queue();
-                        event.getTextChannel().sendMessage(submissionSubject.getEmbeddedMedia().getRedditVideo().getFallbackUrl()).queue();
+                        event.getChannel().sendMessage(submissionSubject.getEmbeddedMedia().getRedditVideo().getFallbackUrl()).queue();
                     }
                 } else hook.sendMessage(permalink(randomSubmission)).queue(); // This is usually a cross post
 
             } else {
                 hook.sendMessage(sendFancyTitle(submissionSubject)).queue();
-                event.getTextChannel().sendMessage(url).queue();
+                event.getChannel().sendMessage(url).queue();
             }
 
         } else {
@@ -94,14 +89,6 @@ public class RedditCommand implements ICommand {
         String postLink = "https://reddit.com";
         postLink = postLink.concat(randomSubmission.getSubject().getPermalink());
         return postLink;
-    }
-
-    @NotNull
-    @Override
-    public CommandUpdateAction.CommandData getCommand() {
-        return new CommandUpdateAction.CommandData(getName(), getDescription())
-                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.STRING, "subreddit", "The name of a subreddit")
-                        .setRequired(true));
     }
 
     @Override

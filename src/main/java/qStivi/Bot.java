@@ -56,6 +56,7 @@ public class Bot {
 
         var cm = new CommandManager(jda);
         jda.addEventListener(cm);
+        jda.updateCommands().addCommands().queue();
 
         activityUpdate.schedule(new TimerTask() {
             @Override
@@ -75,26 +76,26 @@ public class Bot {
                 var seconds = now.getSecond();
                 if (tag.equals("WEDNESDAY") && stunde == 18 && minute == 18 && seconds == 0) {
                     var channel = jda.getTextChannelById("755490778922352801");
-                    if (channel != null) channel.sendMessage("Don't forget! Today we'll rol those math rocks!").mentionRoles("755490137118474270").queue();
+                    if (channel != null) channel.sendMessage("D&D Today!").mentionRoles("755490137118474270").queue();
                 }
             }
         }, 5 * 1000, 1000);
 
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-
-                if (cm.events.isEmpty()) return;
-                var event = cm.events.poll();
-                for (ICommand command : cm.commandList) {
-                    if (command.getCommand().getName().equals(event.getName())) {
-                        command.handle(event);
-                        logger.info("Event handled.");
-                    }
-                }
-
-            }
-        }, 10*1000, 3*1000);
+//        timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//
+//                if (cm.events.isEmpty()) return;
+//                var event = cm.events.poll();
+//                for (ICommand command : cm.commandList) {
+//                    if (command.getCommand().getName().equals(event.getName())) {
+//                        command.handle(event);
+//                        logger.info("Event handled.");
+//                    }
+//                }
+//
+//            }
+//        }, 10*1000, 3*1000);
     }
 
     private static Activity getActivity() {

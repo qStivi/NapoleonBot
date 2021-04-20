@@ -1,8 +1,7 @@
 package qStivi.commands;
 
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import qStivi.ICommand;
 import qStivi.db.DB;
@@ -12,16 +11,10 @@ import java.util.Date;
 
 public class WorkCommand implements ICommand {
 
-    @NotNull
     @Override
-    public CommandUpdateAction.CommandData getCommand() {
-        return new CommandUpdateAction.CommandData(getName(), getDescription());
-    }
-
-    @Override
-    public void handle(SlashCommandEvent event) {
-        var hook = event.getHook();
-        var id = event.getUser().getIdLong();
+    public void handle(GuildMessageReceivedEvent event, String[] args) {
+        var hook = event.getChannel();
+        var id = event.getAuthor().getIdLong();
         var db = new DB();
 
         if (db.userDoesNotExists(id)) {

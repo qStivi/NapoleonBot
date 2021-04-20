@@ -1,12 +1,10 @@
 package qStivi.commands;
 
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import net.dv8tion.jda.api.entities.Command;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.apache.hc.core5.http.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -170,33 +168,23 @@ public class PlayCommand implements ICommand {
         return link;
     }
 
-    @NotNull
-    @Override
-    public CommandUpdateAction.CommandData getCommand() {
-        return new CommandUpdateAction.CommandData(getName(), getDescription())
-                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.STRING, "query", "The song you want to play. Can be a link or search query.")
-                        .setRequired(true))
-                .addOption(new CommandUpdateAction.OptionData(Command.OptionType.BOOLEAN, "shuffle", "Do you want the playlist to be shuffled?")
-                        .setRequired(false));
-    }
-
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void handle(SlashCommandEvent event) {
-        var hook = event.getHook();
-        if (!join(event.getGuild(), event.getUser())) {
+    public void handle(GuildMessageReceivedEvent event, String[] args) {
+        var hook = event.getChannel();
+        if (!join(event.getGuild(), event.getAuthor())) {
             hook.sendMessage("Please join a channel, so I can play your request.").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
             return;
         }
         try {
-            if (event.getOption("shuffle") != null) {
-                if (event.getOption("shuffle").getAsBoolean()) {
-                    hook.sendMessage(playSong(event.getOption("query").getAsString(), true, event.getTextChannel(), event.getGuild())).delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
-                }
-            } else {
-                var msg = playSong(event.getOption("query").getAsString(), false, event.getTextChannel(), event.getGuild());
-                hook.sendMessage(Objects.requireNonNullElse(msg, "Something went wrong!")).delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
-            }
+//            if (event.getOption("shuffle") != null) {
+//                if (event.getOption("shuffle").getAsBoolean()) {
+//                    hook.sendMessage(playSong(event.getOption("query").getAsString(), true, event.getTextChannel(), event.getGuild())).delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
+//                }
+//            } else {
+            var msg = playSong(args[1], false, event.getChannel(), event.getGuild());
+            hook.sendMessage(Objects.requireNonNullElse(msg, "Something went wrong!")).delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
+//            }
         } catch (ParseException | SpotifyWebApiException | IOException e) {
             e.printStackTrace();
             hook.sendMessage("Something went wrong :(").delay(Duration.ofSeconds(60)).flatMap(Message::delete).queue();
